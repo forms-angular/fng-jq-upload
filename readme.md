@@ -5,10 +5,9 @@ adaptation of Dominic Bottger's fork of BlueImp jquery-file-upload).
 
 ## Usage
 
-Add the following lines to the package.json file on the server side:
+On the server side: 
 
-    "gridfs-uploader": ">=0.0.1",
-    "multer": ">=0.0.1",
+    npm install fng-jq-upload
     
 In the call to create the forms-angular object (normally in the main server express start-up module) add a key of 
 *JQMongoFielUploader* as follows:
@@ -19,7 +18,7 @@ There are currently no configuration options, so just pass an empty object.
 
 For the client side you need to run
 
-    bower install fng-upload
+    bower install fng-jq-upload
     
 Add the following lines to your index.html (or equivalent) file
 

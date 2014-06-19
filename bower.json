@@ -9,7 +9,7 @@
   "main":[
     "../blueimp-gallery/css/blueimp-gallery.css",
     "../fng-jqfile-upload/css/jquery.fileupload.css",
-    "../fng-jqfile-upload{urlPrefix: '/api/', JQMongoFileUploader: {}}/css/jquery.fileupload-ui.css",
+    "../fng-jqfile-upload/css/jquery.fileupload-ui.css",
     "../blueimp-load-image/js/load-image.min.js",
     "../blueimp-canvas-to-blob/js/canvas-to-blob.min.js",
     "../blueimp-gallery/js/jquery.blueimp-gallery.min.js",

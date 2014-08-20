@@ -1,19 +1,23 @@
 {
   "name": "fng-jq-upload",
-  "version": "0.4.0-alpha.1",
+  "version": "0.4.0-alpha.2",
   "authors": [
-    "Mark Chapman <support@reallycare.org>",
-    "Dominic Böttger"
+    "Mark Chapman <support@reallycare.org>"
   ],
-  "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.  A wrapper for fng-jqfile-upload (which is a tiny adaptation of Dominic Bottger's form of BlueImp jquery-file-upload",
+  "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.",
   "main":[
-    "../blueimp-gallery/css/blueimp-gallery.css",
-    "../fng-jqfile-upload/css/jquery.fileupload.css",
-    "../fng-jqfile-upload/css/jquery.fileupload-ui.css",
-    "../blueimp-load-image/js/load-image.min.js",
-    "../blueimp-canvas-to-blob/js/canvas-to-blob.min.js",
-    "../blueimp-gallery/js/jquery.blueimp-gallery.min.js",
-    "../fng-jqfile-upload/dist/uploader.js"
+    "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
+    "bower_components/blueimp-file-upload/js/jquery.fileupload.js",
+    "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js",
+    "bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js",
+    "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js",
+    "bower_components/blueimp-file-upload/js/jquery.fileupload-audio.js",
+    "bower_components/blueimp-file-upload/js/jquery.fileupload-video.js",
+    "bower_components/blueimp-file-upload/js/jquery.fileupload-angular.js",
+    "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js",
+
+    "dist/fng-jq-upload.js",
+    "css/override-blueimp.css"
   ],
   "keywords": [
     "forms-angular",
@@ -22,13 +26,15 @@
   "license": "MIT",
   "homepage": "www.forms-angular.org",
   "dependencies": {
-    "fng-jqfile-upload": "0.4.0-alpha.1"
+    "blueimp-file-upload": ">=9.7",
+    "blueimp-gallery": ">=2.15"
   },
   "ignore": [
     "**/.*",
+    "app",
+    "templates",
+    "generated",
     "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+    "bower_components"
   ]
 }

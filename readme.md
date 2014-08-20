@@ -1,7 +1,6 @@
 # fng-jq-upload
 
-jQuery file upload plugin for forms-angular, storing data in Mongo.  A wrapper for fng-jqfile-upload (which is a tiny 
-adaptation of Dominic Bottger's fork of BlueImp jquery-file-upload).
+jQuery file upload plugin for forms-angular, storing data in Mongo.  A wrapper for BlueImp jquery-file-upload).
 
 ## Usage
 
@@ -33,10 +32,19 @@ Add the following lines to your index.html (or equivalent) file
     <script type="text/javascript" src="/bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
     <!-- blueimp Gallery script -->
     <script type="text/javascript" src="/bower_components/blueimp-gallery/js/jquery.blueimp-gallery.min.js"></script>
-    <script type="text/javascript" src="/bower_components/fng-jqfile-upload/dist/uploader.js"></script>
+    <script type="text/javascript" src="/bower_components/fng-jq-upload/fng-jq-upload.js"></script>
             
 File fields need to be set up as follows:
 
-    files: {type: String, form: {type: 'fileuploader', collection:'files'}},
-    
-where collection is the MongoDB collection you want the chunks stored in.
+    var uploadSchema = new mongoose.Schema({
+      filename: String,
+      size: Number
+    });
+
+    var mySchema = new mongoose.Schema({
+      domrField: String,
+      files: {type: [uploadSchema], form: {directive: 'fng-jq-upload-form', add:{autoUpload:true, sizeLimit:50000000}}}
+    });
+
+The chunks and file details get stored in the collection.files and collection.chunks collections where 'collection' is
+the collection in which the data for mySchema is stored

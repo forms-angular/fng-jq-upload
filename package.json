@@ -1,16 +1,25 @@
 {
   "name": "fng-jq-upload",
-  "version": "0.4.0-alpha.1",
+  "version": "0.4.0-alpha.2",
   "authors": [
-    "Mark Chapman <support@reallycare.org>",
-    "Dominic Böttger"
+    "Mark Chapman <support@reallycare.org>"
   ],
-  "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.  A wrapper for fng-jqfile-upload (which is a tiny adaptation of Dominic Bottger's form of BlueImp jquery-file-upload",
+  "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.  Pretty much a wrapper for BlueImp jquery-file-upload",
   "dependencies": {
-    "gridfs-uploader": ">=0.0.1",
-    "multer": ">=0.0.1",
+    "gridform": "^0.1.7"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-bump-build-git": "~1.1.1",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-concat": ">=0.4.0",
+    "grunt-contrib-uglify": ">=0.0.1",
+    "grunt-angular-templates": "^0.5.4",
+    "mocha": "~1.18",
+    "async": "~0.2",
     "mongoose": "~3.8",
-    "underscore": "~1.6"
+    "express": ">=4.0",
+    "forms-angular": "latest"
   },
   "main": "index.js",
   "repository": {

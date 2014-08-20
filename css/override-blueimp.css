@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+.fileinput-button input {
+    position: absolute;
+    opacity: 0;
+}
+.fileinput-button span {
+    display: inline;
+}
+.fileinput-button i,
+.fileupload-buttonbar .delete,
+.fileupload-buttonbar .toggle {
+    display: inline-block;
+}

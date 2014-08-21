@@ -4,6 +4,11 @@
     'blueimp.fileupload'
   ]);
 
+  var getIdFromUrl = function (url) {
+    var breakdown = /\/file\/(.+?)\/([0-9a-f]{24})/.exec(url);
+    return breakdown[2];
+  };
+
   app.directive('fngJqUploadForm', ['fileUpload', function () {
     return {
       link: function (scope, element, attrs) {
@@ -24,14 +29,33 @@
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
 
+        if (!$scope.formScope.newRecord) {
+          var watchDeregister = $scope.formScope.$watch('phase', function(newVal) {
+            if (newVal === 'ready') {
+              console.log('ready');
+              var storedData = $scope.formScope.record[$scope.name];
+              for (var i = 0; i < storedData.length; i++) {
+                $scope.$$childHead.queue = $scope.$$childHead.queue || [];
+                $scope.$$childHead.queue.push({
+                  "name": storedData[i].filename,
+                  "size": storedData[i].size,
+                  "url": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
+                  "thumbnailUrl": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
+                  "deleteUrl": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
+                  "deleteType": "DELETE"
+                });
+              }
+              watchDeregister();
+            }
+          });
+        }
+
         $scope.$on('fileuploaddone', function(event, data) {
           $scope.formScope.record[$scope.name] = $scope.formScope.record[$scope.name] || [];
           var fileDetails = data.result.files[0];
-          var breakdown = /\/file\/(.+?)\/([0-9a-f]{24})/.exec(fileDetails.url);
           $scope.formScope.record[$scope.name].push(
             {
-              _id:      breakdown[2],
-              id:       breakdown[2],
+              _id:      getIdFromUrl(fileDetails.url),
               filename: fileDetails.name,
               size:     fileDetails.size
             });
@@ -43,19 +67,20 @@
       var file = $scope.file,
         state;
 
-//      $scope.uploadScope = $scope.$parent.$parent.$parent;
-//      $scope.formScope = $scope.uploadScope.$parent;
-//      $scope.name = $scope.uploadScope.passedParams.name;
-//
-//      if (!fileUpload.fieldData) {
-//        fileUpload.fieldData = {};
-//      }
-//
-//      if (!fileUpload.fieldData[$scope.name]) {
-//        fileUpload.fieldData[$scope.name] = [];
-//      }
-//
-//      $scope.filequeue = fileUpload.fieldData;
+      $scope.uploadScope = $scope.$parent.$parent.$parent;
+      $scope.formScope = $scope.uploadScope.$parent;
+      $scope.name = $scope.uploadScope.passedParams.name;
+
+      var removeFromRecord = function (file) {
+        var id = getIdFromUrl(file.url);
+        var array = $scope.formScope.record[$scope.name];
+        for (var i = array.length - 1; i >= 0; i--) {
+          if (array[i]._id === id) {
+            array.splice(i, 1);
+          }
+        }
+        $scope.clear(file);
+      };
 
       if (file.url) {
         file.$state = function () {
@@ -69,17 +94,17 @@
           }).then(
             function () {
               state = 'resolved';
-              $scope.clear(file);
+              removeFromRecord(file);
             },
             function () {
               state = 'rejected';
-              $scope.clear(file);
+              removeFromRecord(file);
             }
           );
         };
       } else if (!file.$cancel && !file._index) {
         file.$cancel = function () {
-          $scope.clear(file);
+          removeFromRecord(file);
         };
       }
     }

@@ -1,6 +1,6 @@
 {
   "name": "fng-jq-upload",
-  "version": "0.4.0-alpha.2",
+  "version": "0.4.0-alpha-3",
   "authors": [
     "Mark Chapman <support@reallycare.org>"
   ],
@@ -8,6 +8,9 @@
   "dependencies": {
     "gridform": "^0.1.7"
   },
+  "peerDependencies": {
+    "forms-angular": "0.4.0-alpha-3"
+  }
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-bump-build-git": "~1.1.1",

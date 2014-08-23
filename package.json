@@ -10,7 +10,7 @@
   },
   "peerDependencies": {
     "forms-angular": "0.4.0-alpha-3"
-  }
+  },
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-bump-build-git": "~1.1.1",

@@ -1,20 +1,20 @@
 {
   "name": "fng-jq-upload",
-  "version": "0.4.0-alpha.3",
+  "version": "0.4.0-alpha.3b",
   "authors": [
     "Mark Chapman <support@reallycare.org>"
   ],
   "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.",
   "main":[
-    "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js",
-    "bower_components/blueimp-file-upload/js/jquery.fileupload.js",
-    "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js",
-    "bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js",
-    "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js",
-    "bower_components/blueimp-file-upload/js/jquery.fileupload-audio.js",
-    "bower_components/blueimp-file-upload/js/jquery.fileupload-video.js",
-    "bower_components/blueimp-file-upload/js/jquery.fileupload-angular.js",
-    "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js",
+    "../blueimp-file-upload/js/vendor/jquery.ui.widget.js",
+    "../blueimp-file-upload/js/jquery.fileupload.js",
+    "../blueimp-file-upload/js/jquery.fileupload-process.js",
+    "../blueimp-file-upload/js/jquery.fileupload-validate.js",
+    "../blueimp-file-upload/js/jquery.fileupload-image.js",
+    "../blueimp-file-upload/js/jquery.fileupload-audio.js",
+    "../blueimp-file-upload/js/jquery.fileupload-video.js",
+    "../blueimp-file-upload/js/jquery.fileupload-angular.js",
+    "../blueimp-file-upload/js/jquery.iframe-transport.js",
 
     "dist/fng-jq-upload.js",
     "css/override-blueimp.css"

@@ -32,18 +32,19 @@
         if (!$scope.formScope.newRecord) {
           var watchDeregister = $scope.formScope.$watch('phase', function(newVal) {
             if (newVal === 'ready') {
-              console.log('ready');
               var storedData = $scope.formScope.record[$scope.name];
-              for (var i = 0; i < storedData.length; i++) {
-                $scope.$$childHead.queue = $scope.$$childHead.queue || [];
-                $scope.$$childHead.queue.push({
-                  "name": storedData[i].filename,
-                  "size": storedData[i].size,
-                  "url": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
-                  "thumbnailUrl": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
-                  "deleteUrl": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
-                  "deleteType": "DELETE"
-                });
+              if (storedData) {
+                for (var i = 0; i < storedData.length; i++) {
+                  $scope.$$childHead.queue = $scope.$$childHead.queue || [];
+                  $scope.$$childHead.queue.push({
+                    "name": storedData[i].filename,
+                    "size": storedData[i].size,
+                    "url": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
+                    "thumbnailUrl": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
+                    "deleteUrl": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
+                    "deleteType": "DELETE"
+                  });
+                }
               }
               watchDeregister();
             }

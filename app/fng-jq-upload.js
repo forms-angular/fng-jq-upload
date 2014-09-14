@@ -32,7 +32,6 @@
         if (!$scope.formScope.newRecord) {
           var watchDeregister = $scope.formScope.$watch('phase', function(newVal) {
             if (newVal === 'ready') {
-              console.log('ready');
               var storedData = $scope.formScope.record[$scope.name];
               if (storedData) {
                 for (var i = 0; i < storedData.length; i++) {

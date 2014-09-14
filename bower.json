@@ -1,19 +1,9 @@
 {
   "name": "fng-jq-upload",
-  "version": "0.4.0-beta.1",
+  "version": "0.4.0-beta.1a",
   "author": "Mark Chapman <support@forms-angular.org>",
   "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.",
   "main":[
-    "../blueimp-file-upload/js/vendor/jquery.ui.widget.js",
-    "../blueimp-file-upload/js/jquery.fileupload.js",
-    "../blueimp-file-upload/js/jquery.fileupload-process.js",
-    "../blueimp-file-upload/js/jquery.fileupload-validate.js",
-    "../blueimp-file-upload/js/jquery.fileupload-image.js",
-    "../blueimp-file-upload/js/jquery.fileupload-audio.js",
-    "../blueimp-file-upload/js/jquery.fileupload-video.js",
-    "../blueimp-file-upload/js/jquery.fileupload-angular.js",
-    "../blueimp-file-upload/js/jquery.iframe-transport.js",
-
     "dist/fng-jq-upload.js",
     "css/override-blueimp.css"
   ],

@@ -1,6 +1,6 @@
 {
   "name": "fng-jq-upload",
-  "version": "0.4.0-beta.1d",
+  "version": "0.4.0-beta.2",
   "author": "Mark Chapman <support@forms-angular.org>",
   "description": [
     "jQuery file upload plugin for forms-angular, storing data in Mongo",

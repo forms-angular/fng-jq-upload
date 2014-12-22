@@ -4,7 +4,11 @@
   "author": "Mark Chapman <support@forms-angular.org>",
   "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.  Pretty much a wrapper for BlueImp jquery-file-upload",
   "dependencies": {
-    "gridform": "^0.1.7"
+    "gridform": "^0.1.7",
+    "imagemagick": "0.1.3",
+    "node-imagemagick": "0.1.8",
+    "imagemagick-stream": "1.1.0",
+    "gridfs-stream": "0.5.3"
   },
   "devDependencies": {
     "grunt": "~0.4.2",

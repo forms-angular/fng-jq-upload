@@ -1,6 +1,6 @@
 # fng-jq-upload
 
-jQuery file upload plugin for forms-angular, storing data in Mongo.  A wrapper for BlueImp jquery-file-upload).
+jQuery file upload plugin for forms-angular, storing data in Mongo.  A wrapper for BlueImp jquery-file-upload, heavily influenced Dominic Bottger's fork of that project.
 
 ## Usage
 
@@ -9,7 +9,7 @@ On the server side:
     npm install fng-jq-upload
     
 In the call to create the forms-angular object (normally in the main server express start-up module) add a key of 
-*JQMongoFielUploader* as follows:
+*JQMongoFileUploader* as follows:
      
     var DataFormHandler = new (formsAngular)(app, {JQMongoFileUploader: {}});     
 
@@ -46,5 +46,4 @@ File fields need to be set up as follows:
       files: {type: [uploadSchema], form: {directive: 'fng-jq-upload-form', add:{autoUpload:true, sizeLimit:50000000}}}
     });
 
-The chunks and file details get stored in the collection.files and collection.chunks collections where 'collection' is
-the collection in which the data for mySchema is stored
+The chunks and file details get stored in the collection.files and collection.chunks collections where 'collection' is the collection in which the data for mySchema is stored

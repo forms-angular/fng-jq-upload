@@ -1,14 +1,14 @@
 <div class="form-group control-group" id="cg_f_{{passedParams.name}}">
     <label for="f_{{passedParams.name}}" class="col-sm-2 control-label">{{passedParams.name | titleCase}}</label>
 
-    <div class="col-sm-10 row-fluid">
+    <div class="bs3-input col-sm-10 row-fluid">
         <div class="col-xs-12 span12 fileupload-form">
             <div class="fileupload" method="POST" enctype="multipart/form-data" data-ng-app="demo"
                  data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
                 <div class="controls">
                     <div class="row fileupload-buttonbar">
 
-                        <div class="col-lg-7 span7">
+                        <div class="col-md-7 span7">
                             <!-- The fileinput-button span is used to style the file input field as button -->
                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                     <i class="glyphicon glyphicon-plus"></i>
@@ -27,7 +27,7 @@
                             <span class="fileupload-process"></span>
                         </div>
                         <!-- The global progress state -->
-                        <div class="col-lg-5 span5 fade" data-ng-class="{in: active()}">
+                        <div class="col-md-5 span5 fade" data-ng-class="{in: active()}">
                             <!-- The global progress bar -->
                             <div class="progress progress-striped active" data-file-upload-progress="progress()">
                                 <div class="progress-bar progress-bar-success" data-ng-style="{width: num + '%'}"></div>

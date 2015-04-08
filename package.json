@@ -28,13 +28,9 @@
     "url": "https://github.com/forms-angular/fng-jq-upload"
   },
   "keywords": [
-    "angular",
-    "mongoose",
-    "twitter bootstrap",
-    "express",
-    "form builder",
-    "REST API",
-    "RESTful API"
+    "forms-angular",
+    "upload",
+    "uploader"
   ],
   "license": "MIT"
 }

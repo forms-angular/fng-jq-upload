@@ -25,7 +25,7 @@
       restrict: 'E',
       templateUrl: 'templates/fileform.html',
       scope: {},
-      controller: function ($scope, $element, fileUpload) {
+      controller: ['$scope','$element', 'fileUpload',function ($scope, $element, fileUpload) {
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
 
@@ -61,7 +61,7 @@
               size:     fileDetails.size
             });
         });
-      }
+      }]
     };
   }])
     .controller('FileDestroyController', ['$scope', '$http', 'fileUpload', function ($scope, $http, fileUpload) {

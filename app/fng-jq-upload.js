@@ -17,7 +17,7 @@
         scope.formScope = scope.$parent;
         scope.passedParams = scope.formScope[attrs.schema];
         angular.extend(scope.options, scope.passedParams.add);
-        scope.url='/file/upload/' + scope.formScope.modelName;
+        scope.url = '/file/upload/' + scope.formScope.modelName;
         scope.options.url = scope.url;
         scope.options.maxFileSize = scope.sizeLimit;
         scope.name = scope.passedParams.name;
@@ -25,24 +25,24 @@
       restrict: 'E',
       templateUrl: 'templates/fileform.html',
       scope: {},
-      controller: ['$scope','$element', 'fileUpload',function ($scope, $element, fileUpload) {
+      controller: ['$scope', function ($scope) {
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
 
         if (!$scope.formScope.newRecord) {
-          var watchDeregister = $scope.formScope.$watch('phase', function(newVal) {
+          var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {
             if (newVal === 'ready') {
               var storedData = $scope.formScope.record[$scope.name];
               if (storedData) {
                 for (var i = 0; i < storedData.length; i++) {
                   $scope.$$childHead.queue = $scope.$$childHead.queue || [];
                   $scope.$$childHead.queue.push({
-                    "name": storedData[i].filename,
-                    "size": storedData[i].size,
-                    "url": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
-                    "thumbnailUrl": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
-                    "deleteUrl": "/file/" + $scope.formScope.modelName + "/" + storedData[i]._id,
-                    "deleteType": "DELETE"
+                    'name': storedData[i].filename,
+                    'size': storedData[i].size,
+                    'url': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
+                    'thumbnailUrl': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
+                    'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
+                    'deleteType': 'DELETE'
                   });
                 }
               }
@@ -51,7 +51,7 @@
           });
         }
 
-        $scope.$on('fileuploaddone', function(event, data) {
+        $scope.$on('fileuploaddone', function (event, data) {
           $scope.formScope.record[$scope.name] = $scope.formScope.record[$scope.name] || [];
           var fileDetails = data.result.files[0];
           $scope.formScope.record[$scope.name].push(
@@ -64,7 +64,7 @@
       }]
     };
   }])
-    .controller('FileDestroyController', ['$scope', '$http', 'fileUpload', function ($scope, $http, fileUpload) {
+    .controller('FileDestroyController', ['$scope', '$http', function ($scope, $http) {
       var file = $scope.file,
         state;
 

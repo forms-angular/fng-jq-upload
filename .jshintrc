@@ -33,6 +33,17 @@
   "globals": {
     "angular" : false,
     "alert": false,
-    "_" : true
+    "_" : true,
+    "xit": false,
+    "xdescribe": false,
+    "it": false,
+    "iit": false,
+    "describe": false,
+    "ddescribe": false,
+    "beforeEach": false,
+    "afterEach": false,
+    "before": false,
+    "after": false,
+    "expect": false
  }
 }

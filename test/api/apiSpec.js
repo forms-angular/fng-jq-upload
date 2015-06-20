@@ -3,38 +3,46 @@
 var assert = require('assert');
 var formsAngular = require('forms-angular');
 var express = require('express');
-var async = require('async');
+var bodyParser = require('body-parser');
 var path = require('path');
-var fs = require('fs');
 var mongoose = require('mongoose');
-var request = require('../../node_modules/gridform/test/_request.js');
-var gridform = require('gridform');
+var request = require('supertest');
+
+var db;
 
 describe('API', function () {
 
-  var fng, app, db, mongo;
+  var fng, app, router, Applicant, applicant, files;
 
   before(function (done) {
     app = express();
+    router = express.Router();
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
+
+    //console.log('before',app.address());
 
     fng = new (formsAngular)(app, {urlPrefix: '/api/', JQMongoFileUploader: {}});
+    Applicant = require(path.join(__dirname, '../models/applicant'));
 
     mongoose.connect('localhost', 'forms-ng_test');
+
     mongoose.connection.on('error', function () {
       console.error('connection error', arguments);
     });
 
     mongoose.connection.on('open', function () {
       // Bootstrap models
-      var modelsPath = path.join(__dirname, '/models');
-      fs.readdirSync(modelsPath).forEach(function (file) {
-        var fname = modelsPath + '/' + file;
-        if (fs.statSync(fname).isFile()) {
-          fng.addResource(file.slice(0, -3), require(fname));
+      fng.newResource(Applicant);
+      db = mongoose.connection.db;
+      Applicant.create({surname: 'Smith', forename: 'Mark'}, function (err, applicant1) {
+        if (err) {
+          throw err;
         }
+        applicant = applicant1;
+        files = db.collection('applicants.files');
+        done();
       });
-      done();
-
     });
 
   });
@@ -47,54 +55,62 @@ describe('API', function () {
     });
   });
 
-  describe('upload', function() {
+  describe('upload', function () {
 
-    var address;
-    var fn; // switched out for each test
-
-    it('should support files', function(done){
-
-      fn = function (req, res, next) {
-        var form = gridform({ db: fng.resources[0].model.db.db, mongo: fng.mongoose.mongo });
-        form.parse(req, function (err, fields, files) {
-          if (err) return done(err);
-          assert.equal(fields['user[name]'], 'Tobi');
-          assert(files.text.path);
-          assert.equal('File', files.text.constructor.name);
-
-          // https://github.com/aheckmann/gridform/issues/1
-          db.collection('fs.files', function (err, coll) {
-            assert.ifError(err);
-            coll.findOne({ _id: files.text.id }, function (err, doc) {
-              assert.ifError(err);
-              assert.ok(doc);
-              res.end(files.text.name);
-            })
-          })
-        });
-      };
-
-      var server = require('http').createServer(app);
-      request.address = {address: '0.0.0.0', port: 8999};
-      server.listen(request.address.port, request.address.address, fn);
-      request()
-        .post('/')
-        .header('Content-Type', 'multipart/form-data; boundary=foo')
-        .write('--foo\r\n')
-        .write('Content-Disposition: form-data; name="user[name]"\r\n')
-        .write('\r\n')
-        .write('Tobi')
-        .write('\r\n--foo\r\n')
-        .write('Content-Disposition: form-data; name="text"; filename="foo.txt"\r\n')
-        .write('\r\n')
-        .write('some text here')
-        .write('\r\n--foo--')
-        .end(function(res){
-          assert.equal(res.body, 'foo.txt');
-          done();
-        });
+    it('should store a text file', function (done) {
+      files.count(function (err, start) {
+        if (err) {
+          throw err;
+        }
+        request(app)
+          .post('/file/upload/Applicant')
+          .attach('files', 'test/files/test.txt')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(function (err, res) {
+            if (err) {
+              throw err;
+            }
+            var resp = JSON.parse(res.text);
+            assert.equal(resp.files.length, 1);
+            files.count(function (err, finish) {
+              if (err) {
+                throw err;
+              }
+              assert.equal(start + 1, finish);
+              done();
+            });
+          });
+      });
     });
 
+    it('should store a graphics file with a thumbnail', function (done) {
+      files.count(function (err, start) {
+        if (err) {
+          throw err;
+        }
+        request(app)
+          .post('/file/upload/Applicant')
+          .attach('files', 'test/files/sample.gif')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(function (err, res) {
+            var resp = JSON.parse(res.text);
+            assert.equal(resp.files.length, 1);
+            //console.log(JSON.stringify(JSON.parse(res.text), null, 2));
+            if (err) {
+              throw err;
+            }
+            files.count(function (err, finish) {
+              if (err) {
+                throw err;
+              }
+              assert.equal(start + 2, finish);  // file image and the thumbnail
+              done();
+            });
+          });
+      });
+    });
 
   });
 

@@ -1,16 +1,3 @@
-/*
- * jQuery File Upload Gruntfile
- * https://github.com/blueimp/jQuery-File-Upload
- *
- * Copyright 2013, Sebastian Tschan
- * https://blueimp.net
- *
- * Licensed under the MIT license:
- * http://www.opensource.org/licenses/MIT
- */
-
-/*global module */
-
 module.exports = function (grunt) {
   'use strict';
 
@@ -22,7 +9,8 @@ module.exports = function (grunt) {
       all: [
         'Gruntfile.js',
         'app/*.js',
-        'lib/*.js'
+        'lib/*.js',
+        'test/**/*.js'
       ]
     },
     concat: {
@@ -59,6 +47,17 @@ module.exports = function (grunt) {
           'dist/fng-jq-upload.min.js': ['dist/fng-jq-upload.js']
         }
       }
+    },
+
+    mochaTest: {
+      options: {
+        reporter: 'dot'
+      },
+      all : {
+        src: [
+          'test/api/**/*.js'
+        ]
+      }
     }
   });
 
@@ -67,8 +66,9 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-angular-templates');
+  grunt.loadNpmTasks('grunt-mocha-test');
 
-  grunt.registerTask('test', ['jshint']);
+  grunt.registerTask('test', ['jshint', 'mochaTest']);
   grunt.registerTask('build', ['ngtemplates', 'concat', 'uglify']);
   grunt.registerTask('default', ['test']);
 

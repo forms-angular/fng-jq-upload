@@ -33,6 +33,10 @@ Add the following lines to your index.html (or equivalent) file
     <!-- blueimp Gallery script -->
     <script type="text/javascript" src="/bower_components/blueimp-gallery/js/jquery.blueimp-gallery.min.js"></script>
     <script type="text/javascript" src="/bower_components/fng-jq-upload/fng-jq-upload.js"></script>
+    
+Ensure that your application module (or whatever module is going to use the uploader) specifies uploadModule as a dependency.
+
+    angular.module('myApplication', ['uploadModule']);    
             
 File fields need to be set up as follows:
 

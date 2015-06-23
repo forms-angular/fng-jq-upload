@@ -12,3 +12,19 @@
 .fileupload-buttonbar .toggle {
     display: inline-block;
 }
+
+.overlay-btn {
+    position: absolute;
+    top: 2px;
+    left: 71px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    padding-top: 3px;
+    border: 0;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    opacity: 0.95;
+    z-index: 2;
+}

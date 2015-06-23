@@ -88,6 +88,7 @@
           return state;
         };
         file.$destroy = function () {
+          $scope.$parent.$parent.mouseIn = false;
           state = 'pending';
           return $http({
             url: file.deleteUrl,

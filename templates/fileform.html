@@ -1,5 +1,5 @@
 <div class="form-group control-group" id="cg_f_{{passedParams.name}}">
-    <label for="f_{{passedParams.name}}" class="col-sm-3 control-label">{{passedParams.name | titleCase}}</label>
+    <label for="f_{{passedParams.name}}" class="col-sm-3 control-label">{{passedParams.label || (passedParams.name | titleCase)}}</label>
 
     <div class="bs3-input col-sm-9 row-fluid">
         <div class="col-xs-12 span12 fileupload-form">
@@ -10,16 +10,35 @@
 
                         <div class="col-md-7 span7">
                             <!-- The fileinput-button span is used to style the file input field as button -->
-                <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
-                    <i class="glyphicon glyphicon-plus"></i>
-                    <span>Add files...</span>
-                    <input type="file" name="files" multiple ng-disabled="disabled">
-                </span>
-                            <button type="button" class="btn btn-primary start" data-ng-click="submit()">
+                            <div data-ng-show="options.single" class="pull-left">
+                                <div class="preview" ng-show="!!queue[0].thumbnailUrl">
+                                    <a data-ng-href="{{queue[0].url}}" title="{{queue[0].name}}" download="{{queue[0].name}}" target="_blank" data-gallery ng-mouseover="mouseIn=1" ng-mouseout="mouseIn=0">
+                                        <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="" width="80" height="60">
+                                    </a>
+                                </div>
+                                <button ng-show="mouseIn" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy()">
+                                    <i class="glyphicon glyphicon-trash"></i>
+                                </button>
+                            </div>
+                            <span data-ng-hide="options.single">
+                                <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Add files...</span>
+                                    <input type="file" name="files" multiple ng-disabled="disabled">
+                                </span>
+                            </span>
+                            <span data-ng-show="options.single && queue.length === 0">
+                                <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Upload {{passedParams.label || (passedParams.name | titleCase)}}</span>
+                                    <input type="file" name="files" ng-disabled="disabled">
+                                </span>
+                            </span>
+                            <button type="button" data-ng-hide="options.autoUpload" class="btn btn-primary start" data-ng-click="submit()">
                                 <i class="glyphicon glyphicon-upload"></i>
                                 <span>Start upload</span>
                             </button>
-                            <button type="button" class="btn btn-warning cancel" data-ng-click="cancel()">
+                            <button ng-show="active()" type="button" class="btn btn-warning cancel" data-ng-click="cancel()">
                                 <i class="glyphicon glyphicon-ban-circle"></i>
                                 <span>Cancel upload</span>
                             </button>
@@ -37,25 +56,25 @@
                         </div>
                     </div>
                     <!-- The table listing the files available for upload/download -->
-                    <table class="table table-striped files ng-cloak">
+                    <table data-ng-hide="options.single" class="table table-striped files ng-cloak">
                         <tr data-ng-repeat="file in queue">
                             <td data-ng-switch data-on="!!file.thumbnailUrl">
                                 <div class="preview" data-ng-switch-when="true">
                                     <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}"
                                        target="_blank" data-gallery><img data-ng-src="{{file.thumbnailUrl}}" alt=""
                                                                          width="80"
-                                                                         height="60"></canvas></a>
+                                                                         height="60"></a>
                                 </div>
                                 <div class="preview" data-ng-switch-default data-file-upload-preview="file"></div>
                             </td>
                             <td>
                                 <p class="name" data-ng-switch data-on="!!file.url">
-                        <span data-ng-switch-when="true" data-ng-switch data-on="!!file.thumbnailUrl">
-                            <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}"
-                               download="{{file.name}}" target="_blank" data-gallery>{{file.name}}</a>
-                            <a data-ng-switch-default data-ng-href="{{file.url}}" title="{{file.name}}"
-                               download="{{file.name}}">{{file.name}}</a>
-                        </span>
+                                    <span data-ng-switch-when="true" data-ng-switch data-on="!!file.thumbnailUrl">
+                                        <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}"
+                                           download="{{file.name}}" target="_blank" data-gallery>{{file.name}}</a>
+                                        <a data-ng-switch-default data-ng-href="{{file.url}}" title="{{file.name}}"
+                                           download="{{file.name}}">{{file.name}}</a>
+                                    </span>
                                     <span data-ng-switch-default>{{file.name}}</span>
                                 </p>
                                 <strong data-ng-show="file.error" class="error text-danger">{{file.error}}</strong>

@@ -29,30 +29,30 @@
       templateUrl: 'templates/fileform.html',
       scope: {},
       controller: ['$scope', function ($scope) {
+
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
+        $scope.$on('fngCancel', function (event, data) {
+          var storedData = $scope.$$childHead.queue = data.record[$scope.name];
+          if (storedData) {
+            for (var i = 0; i < storedData.length; i++) {
+              var attachment = storedData[i];
+              var modelName = $scope.formScope.modelName;
+              var filename = attachment.filename;
 
-        if (!$scope.formScope.newRecord) {
-          var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {
-            if (newVal === 'ready') {
-              var storedData = $scope.formScope.record[$scope.name];
-              if (storedData) {
-                for (var i = 0; i < storedData.length; i++) {
-                  $scope.$$childHead.queue = $scope.$$childHead.queue || [];
-                  $scope.$$childHead.queue.push({
-                    'name': storedData[i].filename,
-                    'size': storedData[i].size,
-                    'url': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
-                    'thumbnailUrl': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
-                    'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
-                    'deleteType': 'DELETE'
-                  });
-                }
+              attachment.name = filename;
+              attachment.size = attachment.size;
+              attachment.url = '/file/' + modelName + '/' + attachment._id;
+              if (['.gif', '.png', '.jpg'].indexOf(filename.slice(filename.length-4,filename.length)) !== -1) {
+                attachment.thumbnailUrl = '/file/' + modelName + '/thumbnail/' + attachment._id;
+              } else {
+                attachment.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
               }
-              watchDeregister();
+              attachment.deleteUrl = '/file/' + modelName + '/' + attachment._id;
+              attachment.deleteType = 'DELETE';
             }
-          });
-        }
+          }
+        });
 
         $scope.$on('fileuploaddone', function (event, data) {
           $scope.formScope.record[$scope.name] = $scope.formScope.record[$scope.name] || [];
@@ -65,7 +65,9 @@
             });
           $scope.ngModel.$setDirty();
         });
-      }]
+      }
+
+      ]
     };
   }])
     .controller('FileDestroyController', ['$scope', '$http', function ($scope, $http) {

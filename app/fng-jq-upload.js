@@ -11,7 +11,8 @@
 
   app.directive('fngJqUploadForm', ['fileUpload', function () {
     return {
-      link: function (scope, element, attrs) {
+      link: function (scope, element, attrs, ngModel) {
+        //if (!ngModel) { return; }
         scope.options = {};
         // Pick up options from the mongoose schema
         scope.formScope = scope.$parent;
@@ -21,8 +22,10 @@
         scope.options.url = scope.url;
         scope.options.maxFileSize = scope.sizeLimit;
         scope.name = scope.passedParams.name;
+        scope.ngModel = ngModel;
       },
       restrict: 'E',
+      require: '?ngModel',
       templateUrl: 'templates/fileform.html',
       scope: {},
       controller: ['$scope', function ($scope) {
@@ -56,10 +59,11 @@
           var fileDetails = data.result.files[0];
           $scope.formScope.record[$scope.name].push(
             {
-              _id:      getIdFromUrl(fileDetails.url),
+              _id: getIdFromUrl(fileDetails.url),
               filename: fileDetails.name,
-              size:     fileDetails.size
+              size: fileDetails.size
             });
+          $scope.ngModel.$setDirty();
         });
       }]
     };
@@ -81,6 +85,7 @@
           }
         }
         $scope.clear(file);
+        $scope.ngModel.$setDirty();
       };
 
       if (file.url) {

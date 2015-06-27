@@ -7,19 +7,19 @@
                  data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
                 <div class="controls">
                     <div class="row fileupload-buttonbar">
-
-                        <div class="col-md-7 span7">
-                            <!-- The fileinput-button span is used to style the file input field as button -->
+                        <!-- The min-height is needed to ensure that the div doesn't collapse, and then the mouseIn stuff doesn't work-->
+                        <div class="col-md-7 span7" style="min-height: 60px;">
                             <div data-ng-show="options.single" class="pull-left">
                                 <div class="preview" ng-show="!!queue[0].thumbnailUrl">
                                     <a data-ng-href="{{queue[0].url}}" title="{{queue[0].name}}" download="{{queue[0].name}}" target="_blank" data-gallery ng-mouseover="mouseIn=1" ng-mouseout="mouseIn=0">
-                                        <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="" width="80" height="60">
+                                        <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="" width="{{ options.width || 80 }}" height="{{ options.height || 60 }}">
                                     </a>
                                 </div>
                                 <button ng-show="mouseIn" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy()">
                                     <i class="glyphicon glyphicon-trash"></i>
                                 </button>
                             </div>
+                            <!-- The fileinput-button span is used to style the file input field as button -->
                             <span data-ng-hide="options.single">
                                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                                     <i class="glyphicon glyphicon-plus"></i>

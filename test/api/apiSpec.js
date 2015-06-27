@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var mongoose = require('mongoose');
 var request = require('supertest');
-var jqUploads = require(path.join(__dirname, '../../lib/JQMongo-file-uploads.js'));
+var jqUploads = require(path.join(__dirname, '../..'));
 var db;
 
 describe('API', function () {
@@ -20,8 +20,8 @@ describe('API', function () {
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
 
-    fng = new (formsAngular)(app, {JQMongoFileUploader: {module: jqUploads}});
     Applicant = require(path.join(__dirname, '../models/applicant'));
+    fng = new (formsAngular)(app, {JQMongoFileUploader: {module: jqUploads.Controller}});
 
     mongoose.connect('localhost', 'forms-ng_test');
 
@@ -95,7 +95,6 @@ describe('API', function () {
           .end(function (err, res) {
             var resp = JSON.parse(res.text);
             assert.equal(resp.files.length, 1);
-            //console.log(JSON.stringify(JSON.parse(res.text), null, 2));
             if (err) {
               throw err;
             }

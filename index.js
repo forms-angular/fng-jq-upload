@@ -1,7 +1,7 @@
 
 /**
- * Export lib/forms-angular
+ * Export lib/fng-jq-upload
  *
  */
 
-module.exports = require('./lib/JQMongo-file-uploads');
+module.exports = require('./lib/');

@@ -15,8 +15,10 @@
                                         <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="" width="{{ options.width || 80 }}" height="{{ options.height || 60 }}">
                                     </a>
                                 </div>
+                            </div>
+                            <div data-ng-show="options.single" class="pull-left file-delete-div">
                                 <button ng-show="mouseIn" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy()">
-                                    <i class="glyphicon glyphicon-trash"></i>
+                                    <i class="glyphicon glyphicon-trash icon icon-trash"></i>
                                 </button>
                             </div>
                             <!-- The fileinput-button span is used to style the file input field as button -->

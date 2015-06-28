@@ -14,9 +14,9 @@
 }
 
 .overlay-btn {
-    position: absolute;
+    position: relative;
     top: 0px;
-    left: 17px;
+    left: -24px;
     width: 24px;
     height: 24px;
     background: white;
@@ -27,4 +27,9 @@
     border-radius: 2px;
     opacity: 0.95;
     z-index: 2;
+}
+
+.file-delete-div {
+    min-height: 24px;
+    min-width: 24px;
 }

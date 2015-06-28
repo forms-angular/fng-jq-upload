@@ -39,14 +39,21 @@
               if (storedData) {
                 for (var i = 0; i < storedData.length; i++) {
                   $scope.$$childHead.queue = $scope.$$childHead.queue || [];
-                  $scope.$$childHead.queue.push({
-                    'name': storedData[i].filename,
-                    'size': storedData[i].size,
-                    'url': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
-                    'thumbnailUrl': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
-                    'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedData[i]._id,
+                  var storedElement = storedData[i];
+                  var storedName = storedElement.filename;
+                  var queueElement = {
+                    'name': storedName,
+                    'size': storedElement.size,
+                    'url': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
+                    'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
                     'deleteType': 'DELETE'
-                  });
+                  };
+                  if (['.gif', '.png', '.jpg', '.svg'].indexOf(storedName.slice(storedName.length-4, storedName.length)) !== -1) {
+                    queueElement.thumbnailUrl = '/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
+                  } else {
+                    queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
+                  }
+                  $scope.$$childHead.queue.push(queueElement);
                 }
               }
               watchDeregister();

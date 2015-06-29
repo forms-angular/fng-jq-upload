@@ -9,6 +9,13 @@
                     <div class="row fileupload-buttonbar">
                         <!-- The min-height is needed to ensure that the div doesn't collapse, and then the mouseIn stuff doesn't work-->
                         <div class="col-md-7 span7" style="min-height: 60px;">
+                            <div data-ng-show="options.single && queue.length === 0" class="pull-left">
+                                <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Upload {{passedParams.label || (passedParams.name | titleCase)}}</span>
+                                    <input type="file" name="files" ng-disabled="disabled">
+                                </span>
+                            </div>
                             <div data-ng-show="options.single" class="pull-left">
                                 <div class="preview" ng-show="!!queue[0].thumbnailUrl">
                                     <a data-ng-href="{{queue[0].url}}" title="{{queue[0].name}}" download="{{queue[0].name}}" target="_blank" data-gallery ng-mouseover="mouseIn=1" ng-mouseout="mouseIn=0">
@@ -27,13 +34,6 @@
                                     <i class="glyphicon glyphicon-plus"></i>
                                     <span>Add files...</span>
                                     <input type="file" name="files" multiple ng-disabled="disabled">
-                                </span>
-                            </span>
-                            <span data-ng-show="options.single && queue.length === 0">
-                                <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    <span>Upload {{passedParams.label || (passedParams.name | titleCase)}}</span>
-                                    <input type="file" name="files" ng-disabled="disabled">
                                 </span>
                             </span>
                             <button type="button" data-ng-hide="options.autoUpload" class="btn btn-primary start" data-ng-click="submit()">

@@ -32,30 +32,43 @@
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
 
+        function setUpAttachments() {
+          var storedData = $scope.formScope.record[$scope.name];
+          if (storedData) {
+            for (var i = 0; i < storedData.length; i++) {
+              var storedElement = storedData[i];
+              var storedName = storedElement.filename;
+              var queueElement = {
+                'name': storedName,
+                'size': storedElement.size,
+                'url': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
+                'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
+                'deleteType': 'DELETE'
+              };
+              switch (storedName.slice(storedName.length - 4, storedName.length)) {     // extension
+                case '.gif':
+                case '.png':
+                case '.jpg':
+                  queueElement.thumbnailUrl = '/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
+                  break;
+                default:
+                  queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
+              }
+              $scope.$$childHead.queue.push(queueElement);
+            }
+          }
+        }
+
         if (!$scope.formScope.newRecord) {
           var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {
             if (newVal === 'ready') {
-              var storedData = $scope.formScope.record[$scope.name];
-              if (storedData) {
-                for (var i = 0; i < storedData.length; i++) {
-                  $scope.$$childHead.queue = $scope.$$childHead.queue || [];
-                  var storedElement = storedData[i];
-                  var storedName = storedElement.filename;
-                  var queueElement = {
-                    'name': storedName,
-                    'size': storedElement.size,
-                    'url': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
-                    'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
-                    'deleteType': 'DELETE'
-                  };
-                  if (['.gif', '.png', '.jpg', '.svg'].indexOf(storedName.slice(storedName.length-4, storedName.length)) !== -1) {
-                    queueElement.thumbnailUrl = '/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
-                  } else {
-                    queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
-                  }
-                  $scope.$$childHead.queue.push(queueElement);
-                }
-              }
+              $scope.$$childHead.queue = $scope.$$childHead.queue || [];
+              setUpAttachments();
+              $scope.$on('fngCancel', function () {
+                $scope.$$childHead.queue = [];
+                setUpAttachments();
+              });
+
               watchDeregister();
             }
           });

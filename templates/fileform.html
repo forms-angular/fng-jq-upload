@@ -11,7 +11,7 @@
                         <div class="col-md-7 span7" style="min-height: 60px;">
                             <div data-ng-show="options.single && queue.length === 0" class="pull-left">
                                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <i class="glyphicon glyphicon-plus icon icon-plus"></i>
                                     <span>Upload {{passedParams.label || (passedParams.name | titleCase)}}</span>
                                     <input type="file" name="files" ng-disabled="disabled">
                                 </span>
@@ -31,17 +31,17 @@
                             <!-- The fileinput-button span is used to style the file input field as button -->
                             <span data-ng-hide="options.single">
                                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <i class="glyphicon glyphicon-plus icon icon-plus"></i>
                                     <span>Add files...</span>
                                     <input type="file" name="files" multiple ng-disabled="disabled">
                                 </span>
                             </span>
                             <button type="button" data-ng-hide="options.autoUpload" class="btn btn-primary start" data-ng-click="submit()">
-                                <i class="glyphicon glyphicon-upload"></i>
+                                <i class="glyphicon glyphicon-upload icon icon-upload"></i>
                                 <span>Start upload</span>
                             </button>
                             <button ng-show="active()" type="button" class="btn btn-warning cancel" data-ng-click="cancel()">
-                                <i class="glyphicon glyphicon-ban-circle"></i>
+                                <i class="glyphicon glyphicon-ban icon-circle icon-ban-circle"></i>
                                 <span>Cancel upload</span>
                             </button>
                             <!-- The global file processing state -->
@@ -63,9 +63,7 @@
                             <td data-ng-switch data-on="!!file.thumbnailUrl">
                                 <div class="preview" data-ng-switch-when="true">
                                     <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}"
-                                       target="_blank" data-gallery><img data-ng-src="{{file.thumbnailUrl}}" alt=""
-                                                                         width="80"
-                                                                         height="60"></a>
+                                       target="_blank" data-gallery><img data-ng-src="{{file.thumbnailUrl}}" alt="" width="80" height="60"></a>
                                 </div>
                                 <div class="preview" data-ng-switch-default data-file-upload-preview="file"></div>
                             </td>
@@ -95,17 +93,17 @@
                                 <button type="button" class="btn btn-primary start" data-ng-click="file.$submit()"
                                         data-ng-hide="!file.$submit || options.autoUpload"
                                         data-ng-disabled="file.$state() == 'pending' || file.$state() == 'rejected'">
-                                    <i class="glyphicon glyphicon-upload"></i>
+                                    <i class="glyphicon glyphicon-upload icon icon-upload"></i>
                                     <span>Start</span>
                                 </button>
                                 <button type="button" class="btn btn-warning cancel" data-ng-click="file.$cancel()"
                                         data-ng-hide="!file.$cancel">
-                                    <i class="glyphicon glyphicon-ban-circle"></i>
+                                    <i class="glyphicon glyphicon-ban-circle icon icon-ban-circle"></i>
                                     <span>Cancel</span>
                                 </button>
                                 <button type="button" class="btn btn-danger destroy" data-ng-click="file.$destroy()"
                                         data-ng-hide="!file.$destroy" data-ng-controller="FileDestroyController">
-                                    <i class="glyphicon glyphicon-trash"></i>
+                                    <i class="glyphicon glyphicon-trash icon icon-trash"></i>
                                     <span>Delete</span>
                                 </button>
                             </td>

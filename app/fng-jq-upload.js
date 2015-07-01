@@ -9,18 +9,19 @@
     return breakdown[2];
   };
 
-  app.directive('fngJqUploadForm', ['fileUpload', function () {
+  app.directive('fngJqUploadForm', ['pluginHelper', function (pluginHelper) {
     return {
       link: function (scope, element, attrs, ngModel) {
-        //if (!ngModel) { return; }
-        scope.options = {};
+        angular.extend(scope, pluginHelper.extractFromAttr(attrs, 'fngJqUploadForm'));
+        //scope.options = {};
         // Pick up options from the mongoose schema
         scope.formScope = scope.$parent;
         scope.passedParams = scope.formScope[attrs.schema];
-        angular.extend(scope.options, scope.passedParams.add);
-        scope.url = '/file/upload/' + scope.formScope.modelName;
-        scope.options.url = scope.url;
-        scope.options.maxFileSize = scope.sizeLimit;
+        angular.extend(scope.options, scope.passedParams.fngJqUploadForm);
+
+        scope.directiveOptions.url = '/file/upload/' + scope.formScope.modelName;
+        scope.directiveOptions.sizeLimit = scope.directiveOptions.sizelimit;
+        scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
         scope.name = scope.passedParams.name;
         scope.ngModel = ngModel;
       },
@@ -32,8 +33,44 @@
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
 
+        $scope.dataField = function (initialise) {
+          var retVal;
+          if ($scope.info.name.indexOf('.') === -1) {
+            retVal = $scope.formScope.record[$scope.info.name];
+            if (!retVal && initialise) {
+              retVal = $scope.formScope.record[$scope.info.name] = [];
+            }
+          } else if ($scope.options.subschema) {
+            var modelBase = $scope.formScope.record;
+            var compoundName = $scope.info.name;
+            var root = $scope.options.subschemaroot;
+            var lastPart = compoundName.slice(root.length + 1);
+
+            if ($scope.options.index) {
+              retVal = modelBase[root][$scope.options.index][lastPart];
+            } else {
+              retVal = modelBase;
+              var rootParts = root.split('.');
+              for (var i = 0, l = rootParts.length; i < l; i++) {
+                retVal = retVal[rootParts[i]];
+              }
+              if ($scope.options.subkey) {
+                retVal = retVal[$scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno]][lastPart];
+              } else {
+                console.log('No support for this yet');
+                //modelString += '[$index].' + lastPart;
+                //idString = null;
+                //nameString = compoundName.replace(/\./g, '-');
+              }
+            }
+          } else {
+            console.log('No support for this yet either');
+          }
+          return retVal;
+        };
+
         function setUpAttachments() {
-          var storedData = $scope.formScope.record[$scope.name];
+          var storedData = $scope.dataField();
           if (storedData) {
             for (var i = 0; i < storedData.length; i++) {
               var storedElement = storedData[i];
@@ -75,9 +112,9 @@
         }
 
         $scope.$on('fileuploaddone', function (event, data) {
-          $scope.formScope.record[$scope.name] = $scope.formScope.record[$scope.name] || [];
+          var field = $scope.dataField(true);
           var fileDetails = data.result.files[0];
-          $scope.formScope.record[$scope.name].push(
+          field.push(
             {
               _id: getIdFromUrl(fileDetails.url),
               filename: fileDetails.name,
@@ -93,12 +130,10 @@
         state;
 
       $scope.uploadScope = $scope.$parent.$parent.$parent;
-      $scope.formScope = $scope.uploadScope.$parent;
-      $scope.name = $scope.uploadScope.passedParams.name;
 
       var removeFromRecord = function (file) {
         var id = getIdFromUrl(file.url);
-        var array = $scope.formScope.record[$scope.name];
+        var array = $scope.uploadScope.dataField();
         for (var i = array.length - 1; i >= 0; i--) {
           if (array[i]._id === id) {
             array.splice(i, 1);

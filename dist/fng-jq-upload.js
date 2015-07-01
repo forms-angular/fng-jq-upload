@@ -55,7 +55,6 @@
                 retVal = retVal[rootParts[i]];
               }
               if ($scope.options.subkey) {
-                console.log(JSON.stringify($scope.formScope[$scope.options.subkey]));
                 retVal = retVal[$scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno]][lastPart];
               } else {
                 console.log('No support for this yet');

@@ -1,42 +1,42 @@
-<div class="form-group control-group" id="cg_f_{{passedParams.name}}">
-    <label for="f_{{passedParams.name}}" class="col-sm-3 control-label">{{passedParams.label || (passedParams.name | titleCase)}}</label>
+<div class="form-group control-group" id="cg_f_{{info.name}}">
+    <label for="f_{{info.name}}" class="col-sm-3 control-label">{{info.label || (info.name | titleCase)}}</label>
 
     <div class="bs3-input col-sm-9 row-fluid">
         <div class="col-xs-12 span12 fileupload-form">
             <div class="fileupload" method="POST" enctype="multipart/form-data" data-ng-app="demo"
-                 data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
+                 data-file-upload="directiveOptions" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
                 <div class="controls">
                     <div class="row fileupload-buttonbar">
                         <!-- The min-height is needed to ensure that the div doesn't collapse, and then the mouseIn stuff doesn't work-->
                         <div class="col-md-7 span7" style="min-height: 60px;">
-                            <div data-ng-show="options.single && queue.length === 0" class="pull-left">
+                            <div data-ng-show="directiveOptions.single && queue.length === 0" class="pull-left">
                                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                                     <i class="glyphicon glyphicon-plus icon icon-plus"></i>
-                                    <span>Upload {{passedParams.label || (passedParams.name | titleCase)}}</span>
+                                    <span>Upload {{info.label || (info.name | titleCase)}}</span>
                                     <input type="file" name="files" ng-disabled="disabled">
                                 </span>
                             </div>
-                            <div data-ng-show="options.single" class="pull-left">
+                            <div data-ng-show="directiveOptions.single" class="pull-left">
                                 <div class="preview" ng-show="!!queue[0].thumbnailUrl">
                                     <a data-ng-href="{{queue[0].url}}" title="{{queue[0].name}}" download="{{queue[0].name}}" target="_blank" data-gallery ng-mouseover="mouseIn=1" ng-mouseout="mouseIn=0">
                                         <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="" width="{{ options.width || 80 }}" height="{{ options.height || 60 }}">
                                     </a>
                                 </div>
                             </div>
-                            <div data-ng-show="options.single" class="pull-left file-delete-div">
+                            <div data-ng-show="directiveOptions.single" class="pull-left file-delete-div">
                                 <button ng-show="mouseIn" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy()">
                                     <i class="glyphicon glyphicon-trash icon icon-trash"></i>
                                 </button>
                             </div>
                             <!-- The fileinput-button span is used to style the file input field as button -->
-                            <span data-ng-hide="options.single">
+                            <span data-ng-hide="directiveOptions.single">
                                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                                     <i class="glyphicon glyphicon-plus icon icon-plus"></i>
                                     <span>Add files...</span>
                                     <input type="file" name="files" multiple ng-disabled="disabled">
                                 </span>
                             </span>
-                            <button type="button" data-ng-hide="options.autoUpload" class="btn btn-primary start" data-ng-click="submit()">
+                            <button type="button" data-ng-hide="directiveOptions.autoupload" class="btn btn-primary start" data-ng-click="submit()">
                                 <i class="glyphicon glyphicon-upload icon icon-upload"></i>
                                 <span>Start upload</span>
                             </button>
@@ -58,7 +58,7 @@
                         </div>
                     </div>
                     <!-- The table listing the files available for upload/download -->
-                    <table data-ng-hide="options.single" class="table table-striped files ng-cloak">
+                    <table data-ng-hide="directiveOptions.single" class="table table-striped files ng-cloak">
                         <tr data-ng-repeat="file in queue">
                             <td data-ng-switch data-on="!!file.thumbnailUrl">
                                 <div class="preview" data-ng-switch-when="true">
@@ -91,7 +91,7 @@
                             </td>
                             <td>
                                 <button type="button" class="btn btn-primary start" data-ng-click="file.$submit()"
-                                        data-ng-hide="!file.$submit || options.autoUpload"
+                                        data-ng-hide="!file.$submit || directiveOptions.autoupload"
                                         data-ng-disabled="file.$state() == 'pending' || file.$state() == 'rejected'">
                                     <i class="glyphicon glyphicon-upload icon icon-upload"></i>
                                     <span>Start</span>

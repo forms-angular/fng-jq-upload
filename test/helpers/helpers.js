@@ -9,9 +9,9 @@ beforeEach(function () {
     //
     //  return this.actual.hasClass(cls);
     //},
-    toHaveClass: function() {
+    toHaveClass: function () {
       return {
-        compare: function(actual, expected) {
+        compare: function (actual, expected) {
           var passed = actual.hasClass(expected);
           return {
             pass: passed,
@@ -33,9 +33,9 @@ beforeEach(function () {
     //
     //  return (classCount === count);
     //},
-    toHaveClassCount: function() {
+    toHaveClassCount: function () {
       return {
-        compare: function(actual, cls, expected) {
+        compare: function (actual, cls, expected) {
           for (var i = 0, classCount = 0; i < actual.length; i++) {
             var elm = angular.element(actual[i]);
             if (elm.hasClass(cls)) { classCount += 1; }
@@ -62,9 +62,9 @@ beforeEach(function () {
     //
     //  return (typeCount === count);
     //},
-    toHaveTypeCount: function() {
+    toHaveTypeCount: function () {
       return {
-        compare: function(actual, type, expected) {
+        compare: function (actual, type, expected) {
           for (var i = 0, typeCount = 0; i < actual.length; i++) {
             var elm = angular.element(actual[i]);
             if (elm.attr('type') === type) { typeCount += 1; }
@@ -92,9 +92,9 @@ beforeEach(function () {
     //
     //  return (nameCount === count);
     //}
-    toHaveNameCount: function() {
+    toHaveNameCount: function () {
       return {
-        compare: function(actual, name, expected) {
+        compare: function (actual, name, expected) {
           for (var i = 0, nameCount = 0; i < actual.length; i++) {
             var elm = angular.element(actual[i]);
             if (elm.attr('name') === name) { nameCount += 1; }

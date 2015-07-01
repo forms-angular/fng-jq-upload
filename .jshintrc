@@ -32,6 +32,8 @@
   "sub": true,
   "globals": {
     "angular" : false,
+    "jasmine": false,
+    "inject": false,
     "alert": false,
     "_" : true,
     "xit": false,

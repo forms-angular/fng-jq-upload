@@ -5,6 +5,7 @@ module.exports = function (config) {
     basePath: '../',
     frameworks: ['jasmine'],
     files: [
+      'client/bower_components/jquery/dist/jquery.js',
       'client/bower_components/jquery/jquery.js',
       'client/bower_components/angular/angular.js',
       'client/bower_components/angular-mocks/angular-mocks.js',

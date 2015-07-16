@@ -55,7 +55,12 @@
                 retVal = retVal[rootParts[i]];
               }
               if ($scope.options.subkey) {
-                retVal = retVal[$scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno]][lastPart];
+                var arrayIndex = $scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno];
+                if (arrayIndex !== -1) {
+                  retVal = retVal[arrayIndex][lastPart];
+                } else {
+                  retVal = undefined;
+                }
               } else {
                 console.log('No support for this yet');
                 //modelString += '[$index].' + lastPart;

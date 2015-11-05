@@ -7,13 +7,16 @@ jQuery file upload plugin for forms-angular, storing data in Mongo.  A wrapper f
 On the server side: 
 
     npm install fng-jq-upload
-    
+
+and install [ImageMagick](http://www.imagemagick.org/script/index.php) for creating image thumbnails.
+
 In the call to create the forms-angular object (normally in the main server express start-up module) add a key of 
 *JQMongoFileUploader* as follows:
      
-    var DataFormHandler = new (formsAngular)(app, {JQMongoFileUploader: {}});     
-
-There are currently no configuration options, so just pass an empty object.
+    var fngJqUpload = require('fng-jq-upload');
+    var DataFormHandler = new (formsAngular)(app, {JQMongoFileUploader: {module: fngJqUpload.Controller}});   
+      
+There are currently no other configuration options.
 
 For the client side you need to run
 

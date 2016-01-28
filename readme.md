@@ -53,4 +53,13 @@ File fields need to be set up as follows:
       files: {type: [uploadSchema], form: {directive: 'fng-jq-upload-form', add:{autoUpload:true, sizeLimit:50000000}}}
     });
 
-The chunks and file details get stored in the collection.files and collection.chunks collections where 'collection' is the collection in which the data for mySchema is stored
+The chunks and file details get stored in the collection.files and collection.chunks collections where 'collection' is the collection in which the data for mySchema is stored.
+
+This is done using the following api endpoints:
+
+  * **POST /file/upload/:model** stores the uploaded file to a model.  In the case of *gif*, *png* or *jpg* files
+  creates a thumbnail.  Other file types get a reference to a generic file icon as a thumbnail.
+  * **GET /file/:model/:id** retrieves a stored file
+  * **GET /file/:model/thumbnail/:id** retrieves a thumbnail for a stored graphical file
+  * **DELETE /file/:model/:id** deletes a stored file
+  

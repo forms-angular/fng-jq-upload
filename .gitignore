@@ -5,3 +5,4 @@ generated
 *.log
 test_out
 test_out
+**/*~

@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-var formsAngular = require('forms-angular');
+var FormsAngular = require('forms-angular');
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
@@ -21,7 +21,7 @@ describe('API', function () {
     app.use(bodyParser.json());
 
     Applicant = require(path.join(__dirname, '../models/applicant'));
-    fng = new (formsAngular)(app, {JQMongoFileUploader: {module: jqUploads.Controller}});
+    fng = new (FormsAngular)(app, {JQMongoFileUploader: {module: jqUploads.Controller}});
 
     mongoose.connect('localhost', 'forms-ng_test');
 

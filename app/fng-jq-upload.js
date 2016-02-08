@@ -56,7 +56,7 @@
               }
               if ($scope.options.subkey) {
                 var arrayIndex = $scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno];
-                if (arrayIndex !== -1) {
+                if (arrayIndex && arrayIndex !== -1) {
                   retVal = retVal[arrayIndex][lastPart];
                 } else {
                   retVal = undefined;

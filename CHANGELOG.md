@@ -1,0 +1,1 @@
+0.6.2   Remove blueimp-gallery dependency.  Add it to your application if you want it.

@@ -102,7 +102,8 @@ describe('API', function () {
               if (err) {
                 throw err;
               }
-              assert.equal(start + 2, finish);  // file image and the thumbnail
+              assert.equal(start + 1, finish);  // file image - no thumbnail
+              // assert.equal(start + 2, finish);  // file image and the thumbnail
               done();
             });
           });

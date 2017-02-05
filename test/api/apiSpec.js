@@ -5,9 +5,9 @@ var FormsAngular = require('forms-angular');
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
-var mongoose = require('mongoose');
 var request = require('supertest');
 var jqUploads = require(path.join(__dirname, '../..'));
+var mongoose = require('mongoose');
 var db;
 
 describe('API', function () {
@@ -21,7 +21,7 @@ describe('API', function () {
     app.use(bodyParser.json());
 
     Applicant = require(path.join(__dirname, '../models/applicant'));
-    fng = new (FormsAngular)(app, {JQMongoFileUploader: {module: jqUploads.Controller}});
+    fng = new (FormsAngular)(mongoose, app, {JQMongoFileUploader: {module: jqUploads.Controller}});
 
     mongoose.connect('localhost', 'forms-ng_test');
 

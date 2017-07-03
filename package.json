@@ -9,7 +9,7 @@
   "dependencies-comments": "gridform can be made standard once PR to accept dependencies to the same level are accepted",
   "dependencies": {
     "gridfs-stream": "^1.1.1",
-    "busboy":"0.2.14",
+    "busboy": "0.2.14",
     "imagemagick-stream": "4.1.1"
   },
   "devDependencies": {

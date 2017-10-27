@@ -89,6 +89,9 @@
                                          data-ng-style="{width: num + '%'}"></div>
                                 </div>
                             </td>
+                            <td ng-show="directiveOptions.additFields">
+                                <fng-upload-addit-fields file="{{$index}}"></fng-upload-addit-fields>
+                            </td>
                             <td>
                                 <button type="button" class="btn btn-primary start" data-ng-click="file.$submit()"
                                         data-ng-hide="!file.$submit || directiveOptions.autoupload"

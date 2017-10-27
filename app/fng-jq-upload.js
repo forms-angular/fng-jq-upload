@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+
   var app = angular.module('uploadModule', [
     'blueimp.fileupload'
   ]);
@@ -9,127 +10,177 @@
     return breakdown[2];
   };
 
-  app.directive('fngJqUploadForm', ['pluginHelper', function (pluginHelper) {
-    return {
-      link: function (scope, element, attrs, ngModel) {
-        angular.extend(scope, pluginHelper.extractFromAttr(attrs, 'fngJqUploadForm'));
-        //scope.options = {};
-        // Pick up options from the mongoose schema
-        scope.formScope = scope.$parent;
-        scope.passedParams = scope.formScope[attrs.schema];
-        angular.extend(scope.options, scope.passedParams.fngJqUploadForm);
+  app
+    .controller('FngUploadAdditFieldsCtrl', function($scope, $timeout){
+      $scope.record = {};
 
-        scope.directiveOptions.url = '/file/upload/' + scope.formScope.modelName;
-        scope.directiveOptions.sizeLimit = scope.directiveOptions.sizelimit;
-        scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
-        scope.name = scope.passedParams.name;
-        scope.ngModel = ngModel;
-      },
-      restrict: 'E',
-      require: '?ngModel',
-      templateUrl: 'templates/fileform.html',
-      scope: {},
-      controller: ['$scope', function ($scope) {
-        $scope.loadingFiles = false;
-        $scope.formScope = $scope.$parent;
-
-        $scope.dataField = function (initialise) {
-          var retVal;
-          if ($scope.info.name.indexOf('.') === -1) {
-            retVal = $scope.formScope.record[$scope.info.name];
-            if (!retVal && initialise) {
-              retVal = $scope.formScope.record[$scope.info.name] = [];
-            }
-          } else if ($scope.options.subschema) {
-            var modelBase = $scope.formScope.record;
-            var compoundName = $scope.info.name;
-            var root = $scope.options.subschemaroot;
-            var lastPart = compoundName.slice(root.length + 1);
-
-            if ($scope.options.index) {
-              retVal = modelBase[root][$scope.options.index][lastPart];
-            } else {
-              retVal = modelBase;
-              var rootParts = root.split('.');
-              for (var i = 0, l = rootParts.length; i < l; i++) {
-                retVal = retVal[rootParts[i]];
-              }
-              if ($scope.options.subkey) {
-                var arrayIndex = $scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno];
-                if (arrayIndex != null && arrayIndex !== undefined && arrayIndex !== -1) {
-                  retVal = retVal[arrayIndex][lastPart];
-                } else {
-                  retVal = undefined;
-                }
-              } else {
-                console.log('No support for this yet');
-                //modelString += '[$index].' + lastPart;
-                //idString = null;
-                //nameString = compoundName.replace(/\./g, '-');
-              }
-            }
-          } else {
-            console.log('No support for this yet either');
-          }
-          return retVal;
-        };
-
-        function setUpAttachments() {
-          var storedData = $scope.dataField();
-          if (storedData) {
-            for (var i = 0; i < storedData.length; i++) {
-              var storedElement = storedData[i];
-              var storedName = storedElement.filename;
-              var queueElement = {
-                'name': storedName,
-                'size': storedElement.size,
-                'url': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
-                'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
-                'deleteType': 'DELETE'
-              };
-              switch (storedName.slice(storedName.length - 4, storedName.length)) {     // extension
-                case '.gif':
-                case '.png':
-                case '.jpg':
-                  queueElement.thumbnailUrl = '/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
-                  break;
-                default:
-                  queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
-              }
-              $scope.$$childHead.queue.push(queueElement);
-            }
-          }
+      $scope.$watch('record', function (newVal, oldVal) {
+        if (newVal !== oldVal) {
+          $scope.uploadForm.formScope[$scope.uploadForm.formScope.topLevelFormName].$setDirty();
+          angular.extend($scope.uploadForm.dataField()[$scope.file], newVal);
         }
+      }, true);
 
+      function setUpAdditFields() {
+        $scope.schema.forEach(function(field) {
+          $scope.record[field.name] = $scope.uploadForm.dataField()[$scope.file][field.name];
+        });
+      }
+
+      function doSetUp() {
         if (!$scope.formScope.newRecord) {
           var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {
             if (newVal === 'ready') {
-              $scope.$$childHead.queue = $scope.$$childHead.queue || [];
-              setUpAttachments();
+              setUpAdditFields();
               $scope.$on('fngCancel', function () {
-                $scope.$$childHead.queue = [];
-                setUpAttachments();
+                setUpAdditFields();
               });
-
               watchDeregister();
             }
           });
+        } else {
+          $scope.record = {};
+          setUpWatch();
         }
+      }
 
-        $scope.$on('fileuploaddone', function (event, data) {
-          var field = $scope.dataField(true);
-          var fileDetails = data.result.files[0];
-          field.push(
-            {
-              _id: getIdFromUrl(fileDetails.url),
-              filename: fileDetails.name,
-              size: fileDetails.size
+      $timeout(doSetUp);
+
+    })
+    .directive('fngUploadAdditFields', function() {
+      return {
+        link: function (scope, element, attrs) {
+          scope.uploadForm = scope.$parent.$parent.$parent;
+          scope.formScope = scope.uploadForm.formScope;
+          scope.schema = scope.uploadForm.directiveOptions.additFields;
+          scope.file = parseInt(attrs.file);
+        },
+        scope: {},
+        controller: 'FngUploadAdditFieldsCtrl',
+        template: '<form-input formstyle="inline" schema="schema" model="record" forceform="true"></form-input>'
+      }
+    })
+    .controller('fngJqUploadCtrl', ['$scope', function ($scope) {
+      $scope.loadingFiles = false;
+      $scope.formScope = $scope.$parent;
+
+      $scope.dataField = function (initialise) {
+        var retVal;
+        if ($scope.info.name.indexOf('.') === -1) {
+          retVal = $scope.formScope.record[$scope.info.name];
+          if (!retVal && initialise) {
+            retVal = $scope.formScope.record[$scope.info.name] = [];
+          }
+        } else if ($scope.options.subschema) {
+          var modelBase = $scope.formScope.record;
+          var compoundName = $scope.info.name;
+          var root = $scope.options.subschemaroot;
+          var lastPart = compoundName.slice(root.length + 1);
+
+          if ($scope.options.index) {
+            retVal = modelBase[root][$scope.options.index][lastPart];
+          } else {
+            retVal = modelBase;
+            var rootParts = root.split('.');
+            for (var i = 0, l = rootParts.length; i < l; i++) {
+              retVal = retVal[rootParts[i]];
+            }
+            if ($scope.options.subkey) {
+              var arrayIndex = $scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno];
+              if (arrayIndex != null && arrayIndex !== undefined && arrayIndex !== -1) {
+                retVal = retVal[arrayIndex][lastPart];
+              } else {
+                retVal = undefined;
+              }
+            } else {
+              console.log('No support for this yet');
+              //modelString += '[$index].' + lastPart;
+              //idString = null;
+              //nameString = compoundName.replace(/\./g, '-');
+            }
+          }
+        } else {
+          console.log('No support for this yet either');
+        }
+        return retVal;
+      };
+
+      function setUpAttachments() {
+        var storedData = $scope.dataField();
+        if (storedData) {
+          for (var i = 0; i < storedData.length; i++) {
+            var storedElement = storedData[i];
+            var storedName = storedElement.filename;
+            var queueElement = {
+              'name': storedName,
+              'size': storedElement.size,
+              'url': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
+              'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
+              'deleteType': 'DELETE'
+            };
+            switch (storedName.slice(storedName.length - 4, storedName.length)) {     // extension
+              case '.gif':
+              case '.png':
+              case '.jpg':
+                queueElement.thumbnailUrl = '/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
+                break;
+              default:
+                queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
+            }
+            $scope.$$childHead.queue.push(queueElement);
+          }
+        }
+      }
+
+      if (!$scope.formScope.newRecord) {
+        var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {
+          if (newVal === 'ready') {
+            $scope.$$childHead.queue = $scope.$$childHead.queue || [];
+            setUpAttachments();
+            $scope.$on('fngCancel', function () {
+              $scope.$$childHead.queue = [];
+              setUpAttachments();
             });
-          $scope.ngModel.$setDirty();
+
+            watchDeregister();
+          }
         });
-      }]
-    };
-  }])
+      }
+
+      $scope.$on('fileuploaddone', function (event, data) {
+        var field = $scope.dataField(true);
+        var fileDetails = data.result.files[0];
+        field.push(
+          {
+            _id: getIdFromUrl(fileDetails.url),
+            filename: fileDetails.name,
+            size: fileDetails.size
+          });
+        $scope.ngModel.$setDirty();
+      });
+
+    }])
+    .directive('fngJqUploadForm', ['pluginHelper', function (pluginHelper) {
+      return {
+        link: function (scope, element, attrs, ngModel) {
+          angular.extend(scope, pluginHelper.extractFromAttr(attrs, 'fngJqUploadForm'));
+          // Pick up options from the mongoose schema
+          scope.passedParams = scope.formScope[attrs.schema];
+          angular.extend(scope.options, scope.passedParams.fngJqUploadForm);
+          scope.directiveOptions.additFields = JSON.parse(scope.options.additFields);
+          scope.directiveOptions.url = '/file/upload/' + scope.formScope.modelName;
+          scope.directiveOptions.sizeLimit = scope.directiveOptions.sizelimit;
+          scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
+          scope.name = scope.passedParams.name;
+          scope.ngModel = ngModel;
+        },
+        restrict: 'E',
+        require: '?ngModel',
+        templateUrl: 'templates/fileform.html',
+        scope: {},
+        controller: 'fngJqUploadCtrl'
+      }
+    }])
     .controller('FileDestroyController', ['$scope', '$http', function ($scope, $http) {
       var file = $scope.file,
         state;
@@ -175,5 +226,5 @@
         };
       }
     }
-    ]);
+    ])
 })();

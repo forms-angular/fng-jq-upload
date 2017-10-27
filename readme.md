@@ -50,10 +50,25 @@ File fields need to be set up as follows:
 
     var mySchema = new mongoose.Schema({
       domrField: String,
-      files: {type: [uploadSchema], form: {directive: 'fng-jq-upload-form', add:{autoUpload:true, sizeLimit:50000000}}}
+      files: {
+        type: [uploadSchema],
+        form: {
+          directive: 'fng-jq-upload-form', 
+          fngJqUploadForm: {
+            sizeLimit: 5000000,
+            autoUpload:true
+          }
+        }
+      }
     });
 
-The chunks and file details get stored in the collection.files and collection.chunks collections where 'collection' is the collection in which the data for mySchema is stored.
+You can extend the schema and add the additFields property to the fngJqUploadForm object to generate an inline form to capture the extra fields.  For example:
+
+    additFields: JSON.stringify([{name:'param'}]),
+    
+the additFields property is of type [form schema](https://www.forms-angular.org/#/schemas#formschema).    
+
+The chunks and file details get stored in the collection.files and collection.chunks collections where 'collection' is the collection in which the data for mySchema is stored.  Additional fields, if any, get stored in the main collection.
 
 This is done using the following api endpoints:
 

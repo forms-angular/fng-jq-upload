@@ -167,7 +167,9 @@
           // Pick up options from the mongoose schema
           scope.passedParams = scope.formScope[attrs.schema];
           angular.extend(scope.options, scope.passedParams.fngJqUploadForm);
-          scope.directiveOptions.additFields = JSON.parse(scope.options.additFields);
+          if (scope.options.additFields) {
+            scope.directiveOptions.additFields = JSON.parse(scope.options.additFields);
+          }
           scope.directiveOptions.url = '/file/upload/' + scope.formScope.modelName;
           scope.directiveOptions.sizeLimit = scope.directiveOptions.sizelimit;
           scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;

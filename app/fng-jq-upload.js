@@ -22,9 +22,11 @@
       }, true);
 
       function setUpAdditFields() {
-        $scope.schema.forEach(function(field) {
-          $scope.record[field.name] = $scope.uploadForm.dataField()[$scope.file][field.name];
-        });
+        if ($scope.schema) {
+          $scope.schema.forEach(function (field) {
+            $scope.record[field.name] = $scope.uploadForm.dataField()[$scope.file][field.name];
+          });
+        }
       }
 
       function doSetUp() {

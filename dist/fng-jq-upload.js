@@ -22,9 +22,11 @@
       }, true);
 
       function setUpAdditFields() {
-        $scope.schema.forEach(function(field) {
-          $scope.record[field.name] = $scope.uploadForm.dataField()[$scope.file][field.name];
-        });
+        if ($scope.schema) {
+          $scope.schema.forEach(function (field) {
+            $scope.record[field.name] = $scope.uploadForm.dataField()[$scope.file][field.name];
+          });
+        }
       }
 
       function doSetUp() {
@@ -58,7 +60,7 @@
         scope: {},
         controller: 'FngUploadAdditFieldsCtrl',
         template: '<form-input formstyle="inline" schema="schema" model="record" forceform="true"></form-input>'
-      }
+      };
     })
     .controller('fngJqUploadCtrl', ['$scope', function ($scope) {
       $scope.loadingFiles = false;
@@ -181,7 +183,7 @@
         templateUrl: 'templates/fileform.html',
         scope: {},
         controller: 'fngJqUploadCtrl'
-      }
+      };
     }])
     .controller('FileDestroyController', ['$scope', '$http', function ($scope, $http) {
       var file = $scope.file,
@@ -228,7 +230,7 @@
         };
       }
     }
-    ])
+    ]);
 })();
 angular.module('uploadModule').run(['$templateCache', function($templateCache) {
   'use strict';

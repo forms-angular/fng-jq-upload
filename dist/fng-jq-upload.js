@@ -24,7 +24,8 @@
       function setUpAdditFields() {
         if ($scope.schema) {
           $scope.schema.forEach(function (field) {
-            $scope.record[field.name] = $scope.uploadForm.dataField()[$scope.file][field.name];
+            var objVal = $scope.uploadForm.dataField()[$scope.file];
+            $scope.record[field.name] = objVal ? objVal[field.name] : undefined;
           });
         }
       }

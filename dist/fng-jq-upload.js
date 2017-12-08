@@ -43,7 +43,7 @@
           });
         } else {
           $scope.record = {};
-          setUpWatch();
+          // setUpWatch();
         }
       }
 
@@ -117,15 +117,15 @@
             var queueElement = {
               'name': storedName,
               'size': storedElement.size,
-              'url': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
-              'deleteUrl': '/file/' + $scope.formScope.modelName + '/' + storedElement._id,
+              'url': '/api/file/' + $scope.formScope.modelName + '/' + storedElement._id,
+              'deleteUrl': '/api/file/' + $scope.formScope.modelName + '/' + storedElement._id,
               'deleteType': 'DELETE'
             };
             switch (storedName.slice(storedName.length - 4, storedName.length)) {     // extension
               case '.gif':
               case '.png':
               case '.jpg':
-                queueElement.thumbnailUrl = '/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
+                queueElement.thumbnailUrl = '/api/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
                 break;
               default:
                 queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
@@ -173,7 +173,7 @@
           if (scope.options.additFields) {
             scope.directiveOptions.additFields = JSON.parse(scope.options.additFields);
           }
-          scope.directiveOptions.url = '/file/upload/' + scope.formScope.modelName;
+          scope.directiveOptions.url = '/api/file/upload/' + scope.formScope.modelName;
           scope.directiveOptions.sizeLimit = scope.directiveOptions.sizelimit;
           scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
           scope.name = scope.passedParams.name;

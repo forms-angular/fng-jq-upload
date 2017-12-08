@@ -21,7 +21,10 @@ describe('API', function () {
     app.use(bodyParser.json());
 
     Applicant = require(path.join(__dirname, '../models/applicant'));
-    fng = new (FormsAngular)(mongoose, app, {JQMongoFileUploader: {module: jqUploads.Controller}});
+    fng = new (FormsAngular)(mongoose, app, {
+      urlPrefix: '/api/',
+      plugins:{JQMongoFileUploader: {plugin: jqUploads.Controller, options: {}}}
+    });
 
     mongoose.connect('localhost', 'forms-ng_test');
 
@@ -61,7 +64,7 @@ describe('API', function () {
           throw err;
         }
         request(app)
-          .post('/file/upload/Applicant')
+          .post('/api/file/upload/Applicant')
           .attach('files', 'test/files/test.txt')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -88,7 +91,7 @@ describe('API', function () {
           throw err;
         }
         request(app)
-          .post('/file/upload/Applicant')
+          .post('/api/file/upload/Applicant')
           .attach('files', 'test/files/sample.gif')
           .expect('Content-Type', /json/)
           .expect(200)

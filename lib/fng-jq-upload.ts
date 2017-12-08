@@ -136,11 +136,9 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
         }
     }]));
 
-    console.log('Loading plugin');
     fng.app.delete.apply(fng.app, processArgs(fng.options, ['file/:model/:id', function (req: any, res: any) {
         let mongo = fng.mongoose.mongo;
         let model = req.params.model;
-        console.log(model, req.params.id);
         let resource = fng.getResource(model);
         let rootName = resource.model.collection.name;
         let gfs = new Grid(resource.model.db.db, mongo);

@@ -19,7 +19,7 @@
     "async": "1.5.2",
     "body-parser": "^1.13.1",
     "express": ">=4.0",
-    "forms-angular": "*",
+    "forms-angular": "0.11.0",
     "grunt": "1.0.1",
     "grunt-angular-templates": "1.1.0",
     "grunt-bump-build-git": "1.1.3",

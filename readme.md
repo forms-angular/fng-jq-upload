@@ -19,7 +19,9 @@ In the call to create the forms-angular object (normally in the main server expr
       }
     });
 
-There are currently no other configuration options.
+Configuration options:
+
+- **inhibitAuthentication** : boolean.  Inhibit calling any authentication middleware that forms-angular has been told to use.  Prevents having to intercept http calls in BlueImp (PRs to enable this would be more than welcome).
 
 ### On the client side:
 

@@ -5,16 +5,25 @@ import * as Busboy from 'busboy';
 import * as path from 'path';
 import * as ims from 'imagemagick-stream';
 
+interface JqUploadOptions {
+    debug?: Boolean;
+    inhibitAuthentication?: Boolean;
+}
+
 export let FileSchema = {
     filename: String,
     size: Number
 };
 
-export function Controller(fng: any, processArgs: (options: any, array: Array<any>) => Array<any>, options: any) {
+export function Controller(fng: any, processArgs: (options: any, array: Array<any>) => Array<any>, options: JqUploadOptions) {
 
     this.options = options;
+    let modifiedOptions = Object.assign({}, fng.options);
+    if (this.options.inhibitAuthentication) {
+        delete modifiedOptions.authentication;
+    }
 
-    fng.app.post.apply(fng.app, processArgs(fng.options, ['file/upload/:model', function (req: any, res: any) {
+    fng.app.post.apply(fng.app, processArgs(modifiedOptions, ['file/upload/:model', function (req: any, res: any) {
 
         function uploadFile(gfs, file, options, callback) {
             let stream;
@@ -55,8 +64,8 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
                     let response: any = {
                         name: res.filename,
                         size: res.length,
-                        url: '/file/' + model + '/' + id,
-                        deleteUrl: '/file/' + model + '/' + id,
+                        url: modifiedOptions.urlPrefix + 'file/' + model + '/' + id,
+                        deleteUrl: modifiedOptions.urlPrefix + 'file/' + model + '/' + id,
                         deleteType: 'DELETE'
                     };
 
@@ -85,7 +94,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
                                 if (err) {
                                     return reject(err);
                                 }
-                                response.thumbnailUrl = '/file/' + model + '/thumbnail/' + res._id.toString();
+                                response.thumbnailUrl = modifiedOptions.urlPrefix + 'file/' + model + '/thumbnail/' + res._id.toString();
                                 return resolve(response);
                             });
                             break;
@@ -107,7 +116,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
         return req.pipe(busboy);
     }]));
 
-    fng.app.get.apply(fng.app, processArgs(fng.options, ['file/:model/:id', function (req: any, res: any) {
+    fng.app.get.apply(fng.app, processArgs(modifiedOptions, ['file/:model/:id', function (req: any, res: any) {
         try {
             let mongo = fng.mongoose.mongo;
             let model = req.params.model;
@@ -122,7 +131,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
     }]));
 
     // Thumbnails endpoint
-    fng.app.get.apply(fng.app, processArgs(fng.options, ['file/:model/thumbnail/:id', function (req: any, res: any) {
+    fng.app.get.apply(fng.app, processArgs(modifiedOptions, ['file/:model/thumbnail/:id', function (req: any, res: any) {
         try {
             let mongo = fng.mongoose.mongo;
             let model = req.params.model;
@@ -136,7 +145,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
         }
     }]));
 
-    fng.app.delete.apply(fng.app, processArgs(fng.options, ['file/:model/:id', function (req: any, res: any) {
+    fng.app.delete.apply(fng.app, processArgs(modifiedOptions, ['file/:model/:id', function (req: any, res: any) {
         let mongo = fng.mongoose.mongo;
         let model = req.params.model;
         let resource = fng.getResource(model);

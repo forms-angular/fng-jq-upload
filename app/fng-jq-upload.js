@@ -11,7 +11,7 @@
   };
 
   app
-    .controller('FngUploadAdditFieldsCtrl', function($scope, $timeout){
+    .controller('FngUploadAdditFieldsCtrl', ['$scope', '$timeout', function($scope, $timeout){
       $scope.record = {};
 
       $scope.$watch('record', function (newVal, oldVal) {
@@ -49,7 +49,7 @@
 
       $timeout(doSetUp);
 
-    })
+    }])
     .directive('fngUploadAdditFields', function() {
       return {
         link: function (scope, element, attrs) {

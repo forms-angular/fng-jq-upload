@@ -17,7 +17,7 @@ export let FileSchema = {
 
 export function Controller(fng: any, processArgs: (options: any, array: Array<any>) => Array<any>, options: JqUploadOptions) {
 
-    this.options = options;
+    this.options = options || {};
     let modifiedOptions = Object.assign({}, fng.options);
     if (this.options.inhibitAuthentication) {
         delete modifiedOptions.authentication;

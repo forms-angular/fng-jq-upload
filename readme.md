@@ -4,11 +4,15 @@ jQuery file upload plugin for forms-angular, storing data in Mongo.  A wrapper f
 
 ## Usage
 
+    npm install fng-jq-upload
+    
+To get all the dependencies at the top level of your node_modules run
+
+    npm dedupe    
+
 ### On the server side:
 
-    npm install fng-jq-upload
-
-and install [ImageMagick](http://www.imagemagick.org/script/index.php) for creating image thumbnails.
+Install [ImageMagick](http://www.imagemagick.org/script/index.php) for creating image thumbnails.
 
 In the call to create the forms-angular object (normally in the main server express start-up module) add a plugins property to the options  as follows:
      
@@ -25,24 +29,20 @@ Configuration options:
 
 ### On the client side:
 
-Run
-
-    bower install fng-jq-upload
-    
 Add the following lines to your index.html (or equivalent) file
 
     <!-- blueimp Gallery styles -->
-    <link rel="stylesheet" href="/bower_components/blueimp-gallery/css/blueimp-gallery.css">
+    <link rel="stylesheet" href="blueimp-gallery/css/blueimp-gallery.css">
     <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-    <link rel="stylesheet" href="/bower_components/fng-jqfile-upload/css/jquery.fileupload.css">
-    <link rel="stylesheet" href="/bower_components/fng-jqfile-upload/css/jquery.fileupload-ui.css">
+    <link rel="stylesheet" href="fng-jqfile-upload/css/jquery.fileupload.css">
+    <link rel="stylesheet" href="fng-jqfile-upload/css/jquery.fileupload-ui.css">
     
-    <script type="text/javascript" src="/bower_components/blueimp-load-image/js/load-image.min.js"></script>
+    <script type="text/javascript" src="blueimp-load-image/js/load-image.min.js"></script>
     <!-- The Canvas to Blob plugin is included for image resizing functionality -->
-    <script type="text/javascript" src="/bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
+    <script type="text/javascript" src="blueimp-canvas-to-blob/js/canvas-to-blob.min.js"></script>
     <!-- blueimp Gallery script -->
-    <script type="text/javascript" src="/bower_components/blueimp-gallery/js/jquery.blueimp-gallery.min.js"></script>
-    <script type="text/javascript" src="/bower_components/fng-jq-upload/fng-jq-upload.js"></script>
+    <script type="text/javascript" src="blueimp-gallery/js/jquery.blueimp-gallery.min.js"></script>
+    <script type="text/javascript" src="fng-jq-upload/fng-jq-upload.js"></script>
     
 Ensure that your application module (or whatever module is going to use the uploader) specifies uploadModule as a dependency.
 

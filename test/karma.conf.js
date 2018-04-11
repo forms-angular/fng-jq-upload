@@ -5,28 +5,21 @@ module.exports = function (config) {
     basePath: '../',
     frameworks: ['jasmine'],
     files: [
-      'client/bower_components/jquery/dist/jquery.js',
-      'client/bower_components/jquery/jquery.js',
-      'client/bower_components/angular/angular.js',
-      'client/bower_components/angular-mocks/angular-mocks.js',
-      'client/bower_components/forms-angular/dist/forms-angular.js',
-      'client/bower_components/forms-angular/bower_components/angular-sanitize/angular-sanitize.js',
-      'client/bower_components/forms-angular/bower_components/angular-messages/angular-messages.js',
-      'client/bower_components/forms-angular/bower_components/angular-ui-bootstrap-bower/ui-bootstrap.js',
-      'client/bower_components/forms-angular/bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js',
-      'client/bower_components/forms-angular/bower_components/angular-elastic/elastic.js',
-      'client/bower_components/blueimp-file-upload/js/cors/jquery.postmessage-transport.js',
-      'client/bower_components/blueimp-file-upload/js/cors/jquery.xdr-transport.js',
-      'client/bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.fileupload.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.fileupload-process.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.fileupload-validate.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.fileupload-image.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.fileupload-audio.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.fileupload-video.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.fileupload-ui.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.fileupload-angular.js',
-      'client/bower_components/blueimp-file-upload/js/jquery.iframe-transport.js',
+      'node_modules/angular/angular.js',
+      'node_modules/angular-mocks/angular-mocks.js',
+      'node_modules/forms-angular/dist/forms-angular.js',
+      'node_modules/blueimp-file-upload/js/cors/jquery.postmessage-transport.js',
+      'node_modules/blueimp-file-upload/js/cors/jquery.xdr-transport.js',
+      'node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js',
+      'node_modules/blueimp-file-upload/js/jquery.fileupload.js',
+      'node_modules/blueimp-file-upload/js/jquery.fileupload-process.js',
+      'node_modules/blueimp-file-upload/js/jquery.fileupload-validate.js',
+      'node_modules/blueimp-file-upload/js/jquery.fileupload-image.js',
+      'node_modules/blueimp-file-upload/js/jquery.fileupload-audio.js',
+      'node_modules/blueimp-file-upload/js/jquery.fileupload-video.js',
+      'node_modules/blueimp-file-upload/js/jquery.fileupload-ui.js',
+      'node_modules/blueimp-file-upload/js/jquery.fileupload-angular.js',
+      'node_modules/blueimp-file-upload/js/jquery.iframe-transport.js',
       'app/fng-jq-upload.js',
       'templates/*.html',
       'test/helpers/**/*.js',
@@ -36,7 +29,20 @@ module.exports = function (config) {
     autoWatch: true,
     usePolling: true,
 
-    browsers: ['PhantomJS'],
+    customLaunchers: {
+      ChromeHeadless: {
+        base: 'Chrome',
+        flags: [
+          '--headless',
+          '--disable-gpu',
+          // Without a remote debugging port, Google Chrome exits immediately.
+          '--remote-debugging-port=9222',
+        ],
+      }
+    },
+
+    browsers : ['ChromeHeadless'],
+
 
     // use dots reporter, as travis terminal does not support escaping sequences
     // possible values: 'dots', 'progress'
@@ -49,7 +55,7 @@ module.exports = function (config) {
     },
     plugins: [
       'karma-jasmine',
-      'karma-phantomjs-launcher',
+      'karma-chrome-launcher',
       'karma-ng-html2js-preprocessor',
       'karma-junit-reporter'
     ],

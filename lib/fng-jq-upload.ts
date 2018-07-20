@@ -87,7 +87,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
                                 /*jshint +W106 */
                             };
 
-                            let type = typeFromExtension === 'jpeg' ? 'jpg' : typeFromExtension.slice(1,4);
+                            let type = typeFromExtension === '.jpeg' ? 'jpg' : typeFromExtension.slice(1,4);
                             let resize = ims().resize('100x100').quality(90).inputFormat(type).outputFormat(type);
                             let readstream = gfs.createReadStream({_id: id, root: resource.model.collection.name, fsync: true});
                             uploadFile(gfs, readstream.pipe(resize), options, function(err, res) {

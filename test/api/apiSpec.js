@@ -26,7 +26,7 @@ describe('API', function () {
       plugins:{JQMongoFileUploader: {plugin: jqUploads.Controller, options: {}}}
     });
 
-    mongoose.connect('localhost', 'forms-ng_test');
+    mongoose.connect('mongodb://localhost:27017/forms-ng_test');
 
     mongoose.connection.on('error', function () {
       console.error('connection error', arguments);

@@ -10,10 +10,10 @@ interface JqUploadOptions {
     inhibitAuthentication?: Boolean;
 }
 
-export let FileSchema = {
-    filename: String,
-    size: Number
-};
+export interface FileSchema {
+    filename: string;
+    size: number;
+}
 
 export function Controller(fng: any, processArgs: (options: any, array: Array<any>) => Array<any>, options: JqUploadOptions) {
 

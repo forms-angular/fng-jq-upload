@@ -4,6 +4,7 @@ import * as Grid from 'gridfs-stream';
 import * as Busboy from 'busboy';
 import * as path from 'path';
 import * as ims from 'imagemagick-stream';
+import * as Mongoose from "mongoose";
 
 interface JqUploadOptions {
     debug?: Boolean;
@@ -11,6 +12,7 @@ interface JqUploadOptions {
 }
 
 export interface FileSchema {
+    _id: Mongoose.Types.ObjectId;
     filename: string;
     size: number;
 }

@@ -1,6 +1,6 @@
 {
   "name": "fng-jq-upload",
-  "version": "0.12.0-beta.26",
+  "version": "0.12.0-beta.27",
   "author": "Mark Chapman <support@forms-angular.org>",
   "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.  Pretty much a wrapper for BlueImp jquery-file-upload",
   "scripts": {
@@ -22,7 +22,7 @@
     "async": "2.6.1",
     "body-parser": "1.18.3",
     "express": "4.16.4",
-    "forms-angular": "0.12.0-beta.26",
+    "forms-angular": "0.12.0-beta.27",
     "grunt": "^1.0.3",
     "grunt-angular-templates": "1.1.0",
     "grunt-contrib-concat": "1.0.1",

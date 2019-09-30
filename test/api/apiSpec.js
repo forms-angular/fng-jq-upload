@@ -27,7 +27,7 @@ describe('API', function () {
     });
 
     mongoose.set('useCreateIndex', true);
-    mongoose.connect('mongodb://localhost:27017/forms-ng_test', {useNewUrlParser: true});
+    mongoose.connect('mongodb://localhost:27017/forms-ng_test', {useNewUrlParser: true, useUnifiedTopology: true});
 
     mongoose.connection.on('error', function () {
       console.error('connection error', arguments);

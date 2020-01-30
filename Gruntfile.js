@@ -59,7 +59,15 @@ module.exports = function (grunt) {
           'test/api/**/*.js'
         ]
       }
-    }
+    },
+
+    karma: {
+      unit: {
+        configFile: 'test/karma.conf.js',
+        singleRun: true
+      }
+    },
+
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -67,8 +75,9 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-angular-templates');
   grunt.loadNpmTasks('grunt-mocha-test');
+  grunt.loadNpmTasks('grunt-karma');
 
-  grunt.registerTask('test', ['jshint', 'mochaTest']);
+  grunt.registerTask('test', ['jshint', 'mochaTest', 'karma']);
   grunt.registerTask('build', ['ngtemplates', 'concat', 'uglify']);
   grunt.registerTask('default', ['test']);
 

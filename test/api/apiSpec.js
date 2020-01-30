@@ -60,7 +60,7 @@ describe('API', function () {
   describe('upload', function () {
 
     it('should store a text file', function (done) {
-      files.count(function (err, start) {
+      files.countDocuments(function (err, start) {
         if (err) {
           throw err;
         }
@@ -75,7 +75,7 @@ describe('API', function () {
             }
             var resp = JSON.parse(res.text);
             assert.equal(resp.files.length, 1);
-            files.count(function (err, finish) {
+            files.countDocuments(function (err, finish) {
               if (err) {
                 throw err;
               }
@@ -87,7 +87,7 @@ describe('API', function () {
     });
 
     it('should store a graphics file with a thumbnail', function (done) {
-      files.count(function (err, start) {
+      files.countDocuments(function (err, start) {
         if (err) {
           throw err;
         }
@@ -102,7 +102,7 @@ describe('API', function () {
             if (err) {
               throw err;
             }
-            files.count(function (err, finish) {
+            files.countDocuments(function (err, finish) {
               if (err) {
                 throw err;
               }

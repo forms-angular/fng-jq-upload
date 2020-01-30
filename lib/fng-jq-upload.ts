@@ -1,5 +1,3 @@
-'use strict';
-
 import * as Grid from 'gridfs-stream';
 import * as Busboy from 'busboy';
 import * as path from 'path';

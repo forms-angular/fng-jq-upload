@@ -1,8 +1,9 @@
-import * as Grid from 'gridfs-stream';
 import * as Busboy from 'busboy';
 import * as path from 'path';
 import * as ims from 'imagemagick-stream';
 import * as Mongoose from "mongoose";
+import {GridFSBucket, MongoError} from "mongodb";
+import * as stream from "stream";
 
 interface JqUploadOptions {
     debug?: Boolean;
@@ -15,6 +16,17 @@ export interface FileSchema {
     size: number;
 }
 
+export interface IMetaData {
+    original_id: any;
+}
+
+export interface IOptions {
+    filename: string;
+    metadata? : IMetaData;
+    mode?: string;
+    _id? : any;
+}
+
 export function Controller(fng: any, processArgs: (options: any, array: Array<any>) => Array<any>, options: JqUploadOptions) {
 
     this.options = options || {};
@@ -25,19 +37,20 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
 
     fng.app.post.apply(fng.app, processArgs(modifiedOptions, ['file/upload/:model', function (req: any, res: any) {
 
-        function uploadFile(gfs, file, options, callback) {
+        function uploadFile(gridFSBucket: GridFSBucket, file: stream, options: IOptions, callback?: (err: Error | null, res?: any) => void) {
             let stream;
             if (callback == null) {
                 callback = function() {};
             }
-            let mongo = fng.mongoose.mongo;
-            options._id = new mongo.ObjectID();
+            options._id = new fng.mongoose.mongo.ObjectID();
             options.mode = 'w';
-            stream = gfs.createWriteStream(options);
-            stream.on('close', function(metaData) {
+            stream = gridFSBucket.openUploadStream(options.filename);
+            stream.once('finish', function(metaData: any) {
                 return callback(null, metaData);
             });
-            stream.on('error', callback);
+            stream.on('error', function(err) {
+                callback(err);
+            });
             return file.pipe(stream);
         }
 
@@ -47,16 +60,15 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
         });
         let mongo = fng.mongoose.mongo;
         let resource = fng.getResource(model);
-        let gfs: any = new Grid(resource.model.db.db, mongo);
+        const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
         let promises: any = [];
         busboy.on('file', function(fieldname, file, filename) {
             return promises.push(new Promise(function(resolve, reject) {
                 let options;
                 options = {
-                    filename: filename,
-                    root: resource.model.collection.name
+                    filename: filename
                 };
-                return uploadFile(gfs, file, options, function(err, res) {
+                return uploadFile(gridFSBucket, file, options, function(err, res) {
                     if (err) {
                         return reject(err);
                     }
@@ -81,7 +93,6 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
                             // Create the thumbnail
                             let options = {
                                 filename: 'thumbnail_' + res.filename,
-                                root: resource.model.collection.name,
                                 /*jshint -W106 */
                                 metadata: {original_id: id} // original id is needed to remove thumbnail afterwards
                                 /*jshint +W106 */
@@ -89,8 +100,11 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
 
                             let type = typeFromExtension === '.jpeg' ? 'jpg' : typeFromExtension.slice(1,4);
                             let resize = ims().resize('100x100').quality(90).inputFormat(type).outputFormat(type);
-                            let readstream = gfs.createReadStream({_id: id, root: resource.model.collection.name, fsync: true});
-                            uploadFile(gfs, readstream.pipe(resize), options, function(err, res) {
+                            var readstream = gridFSBucket.openDownloadStream(res._id);
+                            readstream.on('error', (err2: Error) => {
+                                return reject(err2);
+                            });
+                            uploadFile(gridFSBucket, readstream.pipe(resize), options, function(err, res) {
                                 if (err) {
                                     return reject(err);
                                 }
@@ -121,12 +135,12 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let mongo = fng.mongoose.mongo;
             let model = req.params.model;
             let resource = fng.getResource(model);
-            let gfs = new Grid(resource.model.db.db, mongo);
-            let readstream = gfs.createReadStream({_id: req.params.id, root: resource.model.collection.name});
+            const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
+            let readstream = gridFSBucket.openDownloadStream(req.params.id);
             readstream.pipe(res);
         } catch (e) {
             console.log(e.message);
-            res.status(400).end();
+            res.sendStatus(400);
         }
     }]));
 
@@ -136,12 +150,12 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let mongo = fng.mongoose.mongo;
             let model = req.params.model;
             let resource = fng.getResource(model);
-            let gfs = new Grid(resource.model.db.db, mongo);
-            let readstream = gfs.createReadStream({_id: req.params.id, root: resource.model.collection.name});
+            const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
+            let readstream = gridFSBucket.openDownloadStream(req.params.id);
             readstream.pipe(res);
         } catch (e) {
             console.log(e.message);
-            res.status(400).end();
+            res.sendStatus(400)();
         }
     }]));
 
@@ -149,25 +163,24 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
         let mongo = fng.mongoose.mongo;
         let model = req.params.model;
         let resource = fng.getResource(model);
-        let rootName = resource.model.collection.name;
-        let gfs = new Grid(resource.model.db.db, mongo);
+        const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
 
         // Find the thumbnail image based on the original_id stored in the metadata
         // for the original file and remove it
         let collection = fng.mongoose.connection.collection(resource.model.collection.name + '.files');
-        collection.findOne({ 'metadata.original_id': req.params.id }, { }, function (err, obj) {
+        collection.findOne({ 'metadata.original_id': req.params.id }, { }, function (err : MongoError | null, obj: any) {
             if (err) { return; }
             if (obj) {
-                gfs.remove({_id: obj._id, root: rootName});   // Ignore any errors
+                gridFSBucket.delete(obj._id);   // Ignore any errors
             }
         });
 
         // remove the original file too
-        gfs.remove({_id: req.params.id, root: rootName}, function (err) {
+        gridFSBucket.delete(req.params.id, function (err: MongoError | undefined) {
             if (err) {
-                res.status(500).end();
+                res.send(err.message).sendStatus(500);
             } else {
-                res.status(200).end();
+                res.sendStatus(200);
             }
         });
 

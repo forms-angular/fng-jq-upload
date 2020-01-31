@@ -74,12 +74,12 @@ describe('API', function () {
               throw err;
             }
             var resp = JSON.parse(res.text);
-            assert.equal(resp.files.length, 1);
+            assert.strictEqual(resp.files.length, 1);
             files.countDocuments(function (err, finish) {
               if (err) {
                 throw err;
               }
-              assert.equal(start + 1, finish);
+              assert.strictEqual(start + 1, finish);
               done();
             });
           });
@@ -98,7 +98,7 @@ describe('API', function () {
           .expect(200)
           .end(function (err, res) {
             var resp = JSON.parse(res.text);
-            assert.equal(resp.files.length, 1);
+            assert.strictEqual(resp.files.length, 1);
             if (err) {
               throw err;
             }
@@ -106,7 +106,7 @@ describe('API', function () {
               if (err) {
                 throw err;
               }
-              assert.equal(start + 2, finish);  // file image and the thumbnail
+              assert.strictEqual(start + 2, finish);  // file image and the thumbnail
               done();
             });
           });

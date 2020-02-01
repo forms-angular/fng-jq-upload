@@ -125,6 +125,7 @@
               case '.gif':
               case '.png':
               case '.jpg':
+              case 'jpeg':
                 queueElement.thumbnailUrl = '/api/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
                 break;
               default:

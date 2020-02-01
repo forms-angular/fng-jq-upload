@@ -10,10 +10,15 @@ interface JqUploadOptions {
     inhibitAuthentication?: Boolean;
 }
 
-export interface FileSchema {
+export interface FileSchemaObj {
     _id: Mongoose.Types.ObjectId;
     filename: string;
     size: number;
+}
+
+export const FileSchema = {
+    filename: String,
+    size: Number,
 }
 
 export interface IMetaData {
@@ -44,7 +49,11 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             }
             options._id = new fng.mongoose.mongo.ObjectID();
             options.mode = 'w';
-            stream = gridFSBucket.openUploadStream(options.filename);
+            let openOptions: any = {};
+            if (options.metadata) {
+                openOptions.metadata = options.metadata;
+            }
+            stream = gridFSBucket.openUploadStream(options.filename, openOptions);
             stream.once('finish', function(metaData: any) {
                 return callback(null, metaData);
             });
@@ -136,7 +145,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let model = req.params.model;
             let resource = fng.getResource(model);
             const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
-            let readstream = gridFSBucket.openDownloadStream(req.params.id);
+            let readstream = gridFSBucket.openDownloadStream(mongo.ObjectId(req.params.id));
             readstream.pipe(res);
         } catch (e) {
             console.log(e.message);
@@ -151,7 +160,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let model = req.params.model;
             let resource = fng.getResource(model);
             const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
-            let readstream = gridFSBucket.openDownloadStream(req.params.id);
+            let readstream = gridFSBucket.openDownloadStream(mongo.ObjectId(req.params.id));
             readstream.pipe(res);
         } catch (e) {
             console.log(e.message);
@@ -176,9 +185,9 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
         });
 
         // remove the original file too
-        gridFSBucket.delete(req.params.id, function (err: MongoError | undefined) {
+        gridFSBucket.delete(mongo.ObjectId(req.params.id), function (err: MongoError | undefined) {
             if (err) {
-                res.send(err.message).sendStatus(500);
+                res.status(500).send(err.message);
             } else {
                 res.sendStatus(200);
             }

@@ -90,9 +90,9 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
                         deleteType: 'DELETE'
                     };
 
-                    let typeFromExtension = path.extname(res.filename);
+                    let typeFromExtension = path.extname(res.filename).toLowerCase();
                     /*
-                    Create thumbnails on ImageTragick 'safe-ish' types (according to https://lcamtuf.blogspot.co.uk/2016/05/clearing-up-some-misconceptions-around.html)
+                    Create thumbnails on ImageTragick 'safe-ish' types (according to https://lcamtuf.blogspot.co.uk/2016/05/clearing-up-some-misconceptions-around.html )
                     */
                     switch (typeFromExtension) {
                         case '.gif':

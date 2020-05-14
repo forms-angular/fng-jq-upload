@@ -10,7 +10,7 @@
     "blueimp-file-upload": "9.28.0",
     "busboy": "0.3.1",
     "imagemagick-stream": "4.1.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.1",
     "lodash": "^4.17.15"
   },
   "devDependencies": {

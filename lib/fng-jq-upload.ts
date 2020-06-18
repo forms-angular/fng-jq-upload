@@ -2,7 +2,7 @@ import * as Busboy from 'busboy';
 import * as path from 'path';
 import * as ims from 'imagemagick-stream';
 import * as Mongoose from "mongoose";
-import {GridFSBucket, MongoError} from "mongodb";
+import {Collection, GridFSBucket, MongoError, ObjectID} from "mongodb";
 import * as stream from "stream";
 
 interface JqUploadOptions {
@@ -159,9 +159,26 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let mongo = fng.mongoose.mongo;
             let model = req.params.model;
             let resource = fng.getResource(model);
-            const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
-            let readstream = gridFSBucket.openDownloadStream(mongo.ObjectId(req.params.id));
-            readstream.pipe(res);
+            let id: string = req.params.id;
+            let idObj: ObjectID;
+            fng.mongoose.connection.db.collection(resource.model.collection.collectionName+'.files', (err: MongoError, files: Collection) => {
+                if (err) {
+                    throw err;
+                }
+                files.find({'metadata.original_id': id}).toArray(function(err2, thumbnailData) {
+                    if (err2) {
+                        throw err2;
+                    }
+                    if (thumbnailData.length === 1) {
+                        idObj = thumbnailData[0]._id;
+                    } else {
+                        idObj = mongo.ObjectId(id)
+                    }
+                    const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
+                    let readstream = gridFSBucket.openDownloadStream(idObj);
+                    readstream.pipe(res);
+                });
+            })
         } catch (e) {
             console.log(e.message);
             res.sendStatus(400)();

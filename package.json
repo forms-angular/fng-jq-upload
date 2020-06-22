@@ -18,7 +18,7 @@
     "@types/mongodb": "^3.5.5",
     "@types/mongoose": "5.7.8",
     "@types/node": "10.12.24",
-    "angular": "1.7.9",
+    "angular": "1.8.0",
     "angular-animate": "1.7.9",
     "angular-elastic": "2.5.1",
     "angular-messages": "1.7.9",

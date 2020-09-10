@@ -214,22 +214,24 @@
         file.$state = function () {
           return state;
         };
-        file.$destroy = function () {
-          $scope.$parent.$parent.mouseIn = false;
-          state = 'pending';
-          return $http({
-            url: file.deleteUrl,
-            method: file.deleteType
-          }).then(
-            function () {
-              state = 'resolved';
-              removeFromRecord(file);
-            },
-            function () {
-              state = 'rejected';
-              removeFromRecord(file);
-            }
-          );
+        file.$destroy = function ($event) {
+          if (!$event.target.className.includes('ng-hide')) {
+            $scope.$parent.$parent.mouseIn = false;
+            state = 'pending';
+            return $http({
+              url: file.deleteUrl,
+              method: file.deleteType
+            }).then(
+                function () {
+                  state = 'resolved';
+                  removeFromRecord(file);
+                },
+                function () {
+                  state = 'rejected';
+                  removeFromRecord(file);
+                }
+            );
+          }
         };
       } else if (!file.$cancel && !file._index) {
         file.$cancel = function () {

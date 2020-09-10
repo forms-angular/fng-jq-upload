@@ -1,6 +1,7 @@
 // TODO Check the filesize https://stackoverflow.com/questions/3717793/javascript-file-upload-size-validation
 //  and suggest they resize if using an appropriate tool https://www.google.com/search?q=compress+photo+online+to+200kb
 //  for example https://www.img2go.com/compress-image or https://www.imgonline.com.ua/eng/compress-image-size.php
+//  or https://sqooush.app
 
 (function () {
   'use strict';

@@ -177,12 +177,14 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
                     }
                     const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
                     let readstream = gridFSBucket.openDownloadStream(idObj);
+                    readstream.on('error', function(err: Error) {
+                        res.status(400).send(err.message);
+                    });
                     readstream.pipe(res);
                 });
             })
         } catch (e) {
-            console.log(e.message);
-            res.sendStatus(400)();
+            res.status(400).send(e.message);
         }
     }]));
 

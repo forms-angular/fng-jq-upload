@@ -15,9 +15,9 @@
   },
   "devDependencies": {
     "@types/busboy": "0.2.3",
-    "@types/mongodb": "^3.5.33",
-    "@types/mongoose": "5.10.0",
-    "@types/node": "13",
+    "@types/mongodb": "^3.5.34",
+    "@types/mongoose": "5.10.1",
+    "@types/node": "14",
     "angular": "1.8.2",
     "angular-animate": "1.8.2",
     "angular-elastic": "2.5.1",

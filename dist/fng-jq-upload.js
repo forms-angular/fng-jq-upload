@@ -93,7 +93,7 @@
 
                     var index = $scope.options.index;
                     if (index === undefined) {
-                        index = $scope.$parent.index;
+                        index = $scope.$parent.$index;  // Works for use case where file obj sits in an array
                     }
                     if (index !== undefined) {
                         if (!retVal[index][lastPart]) {
@@ -134,15 +134,19 @@
                             'deleteUrl': '/api/file/' + $scope.formScope.modelName + '/' + storedElement._id,
                             'deleteType': 'DELETE'
                         };
-                        switch (storedName.slice(storedName.length - 4, storedName.length)) {     // extension
-                            case '.gif':
-                            case '.png':
-                            case '.jpg':
-                            case 'jpeg':
-                                queueElement.thumbnailUrl = '/api/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
-                                break;
-                            default:
-                                queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
+                        if (storedName) {
+                            switch (storedName.slice(storedName.length - 4, storedName.length)) {     // extension
+                                case '.gif':
+                                case '.png':
+                                case '.jpg':
+                                case 'jpeg':
+                                    queueElement.thumbnailUrl = '/api/file/' + $scope.formScope.modelName + '/thumbnail/' + storedElement._id;
+                                    break;
+                                default:
+                                    queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
+                            }
+                        } else {
+                            queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
                         }
                         $scope.$$childHead.queue.push(queueElement);
                     }

@@ -15,9 +15,9 @@
   },
   "devDependencies": {
     "@types/busboy": "0.2.3",
-    "@types/mongodb": "^3.5.34",
+    "@types/mongodb": "^3.6.3",
     "@types/mongoose": "5.10.1",
-    "@types/node": "14",
+    "@types/node": "14.14.19",
     "angular": "1.8.2",
     "angular-animate": "1.8.2",
     "angular-elastic": "2.5.1",
@@ -45,7 +45,7 @@
     "mocha": "8.2.1",
     "mongoose": "5.10.14",
     "ng-infinite-scroll": "1.3.0",
-    "semver": "7.3.2",
+    "semver": "^7.3.4",
     "supertest": "6.0.1"
   },
   "main": "lib/fng-jq-upload.js",

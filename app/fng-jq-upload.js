@@ -135,7 +135,7 @@
                             'deleteType': 'DELETE'
                         };
                         if (storedName) {
-                            switch (storedName.slice(storedName.length - 4, storedName.length)) {     // extension
+                            switch (storedName.slice(storedName.length - 4, storedName.length).toLowerCase()) {     // extension
                                 case '.gif':
                                 case '.png':
                                 case '.jpg':

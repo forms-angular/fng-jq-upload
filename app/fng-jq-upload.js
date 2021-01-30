@@ -227,7 +227,7 @@
                     return state;
                 };
                 file.$destroy = function ($event) {
-                    if (!$event.target.className.includes('ng-hide')) {
+                    if (!$event || !$event.target.className.includes('ng-hide')) {
                         $scope.$parent.$parent.mouseIn = false;
                         state = 'pending';
                         return $http({

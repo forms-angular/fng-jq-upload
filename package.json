@@ -15,9 +15,9 @@
   },
   "devDependencies": {
     "@types/busboy": "0.2.3",
-    "@types/mongodb": "^3.6.3",
-    "@types/mongoose": "5.10.1",
-    "@types/node": "14.14.19",
+    "@types/mongodb": "^3.6.5",
+    "@types/mongoose": "5.10.3",
+    "@types/node": "14.14.25",
     "angular": "1.8.2",
     "angular-animate": "1.8.2",
     "angular-elastic": "2.5.1",
@@ -37,7 +37,7 @@
     "grunt-karma": "^4.0.0",
     "grunt-mocha-test": "0.13.3",
     "jasmine-core": "3.6.0",
-    "karma": "5.2.3",
+    "karma": "6.1.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-jasmine": "4.0.1",
     "karma-junit-reporter": "2.0.1",
@@ -46,7 +46,7 @@
     "mongoose": "5.10.14",
     "ng-infinite-scroll": "1.3.0",
     "semver": "^7.3.4",
-    "supertest": "6.0.1"
+    "supertest": "6.1.3"
   },
   "main": "lib/fng-jq-upload.js",
   "repository": {

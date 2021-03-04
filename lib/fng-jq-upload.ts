@@ -147,6 +147,9 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let resource = fng.getResource(model);
             const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
             let readstream = gridFSBucket.openDownloadStream(mongo.ObjectId(req.params.id));
+            readstream.on("error", function(err: Error) {
+                res.status(400).send(err.message);
+            })
             readstream.pipe(res);
         } catch (e) {
             console.log(e.message);

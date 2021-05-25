@@ -1,5 +1,5 @@
 <div class="form-group control-group" id="cg_f_{{info.name}}" {{info.add}}>
-    <label for="f_{{info.name}}" class="col-sm-3 control-label">{{info.label || (info.name | titleCase)}}</label>
+    <label for="f_{{info.name}}" id="{{info.name}}-label" class="col-sm-3 control-label">{{info.label || (info.name | titleCase)}}</label>
 
     <div class="bs3-input col-sm-9 row-fluid">
         <div class="col-xs-12 span12 fileupload-form">
@@ -13,7 +13,7 @@
                                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                                     <i class="glyphicon glyphicon-plus icon icon-plus"></i>
                                     <span>Upload {{info.label || (info.name | titleCase)}}</span>
-                                    <input type="file" name="files" ng-disabled="disabled">
+                                    <input type="file" name="files" ng-disabled="disabled" placeholder="Upload {{info.label || (info.name | titleCase)}}">
                                 </span>
                             </div>
                             <div data-ng-show="directiveOptions.single" class="pull-left">
@@ -33,7 +33,7 @@
                                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                                     <i class="glyphicon glyphicon-plus icon icon-plus"></i>
                                     <span>Add files...</span>
-                                    <input type="file" name="files" multiple ng-disabled="disabled">
+                                    <input type="file" name="files" multiple ng-disabled="disabled" placeholder="Upload {{info.label || (info.name | titleCase)}}">
                                 </span>
                             </span>
                             <button type="button" data-ng-hide="directiveOptions.autoupload" class="btn btn-primary start" data-ng-click="submit()">

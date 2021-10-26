@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-var FormsAngular = require('forms-angular');
+var FormsAngular = require('forms-angular').FormsAngular;
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');

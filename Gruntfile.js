@@ -52,7 +52,8 @@ module.exports = function (grunt) {
 
     mochaTest: {
       options: {
-        reporter: 'dot'
+        reporter: 'dot',
+        'forbid-only': true,
       },
       all : {
         src: [

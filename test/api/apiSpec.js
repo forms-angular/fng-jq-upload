@@ -26,8 +26,7 @@ describe('API', function () {
       plugins:{JQMongoFileUploader: {plugin: jqUploads.Controller, options: {}}}
     });
 
-    mongoose.set('useCreateIndex', true);
-    mongoose.connect('mongodb://localhost:27017/forms-ng_test', {useNewUrlParser: true, useUnifiedTopology: true});
+    mongoose.connect('mongodb://localhost:27017/forms-ng_test');
 
     mongoose.connection.on('error', function () {
       console.error('connection error', arguments);

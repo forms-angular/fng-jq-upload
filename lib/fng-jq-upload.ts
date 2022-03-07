@@ -108,7 +108,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
                                 /*jshint +W106 */
                             };
 
-                            let type = typeFromExtension === '.jpeg' ? '.jpg' : typeFromExtension.slice(1,4);
+                            let type = typeFromExtension.slice(1,4);
                             let resize = ims().resize('100x100').quality(90).inputFormat(type).outputFormat(type);
                             var readstream = gridFSBucket.openDownloadStream(res._id);
                             readstream.on('error', (err2: Error) => {

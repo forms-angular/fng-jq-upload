@@ -10,10 +10,10 @@
                         <!-- The min-height is needed to ensure that the div doesn't collapse, and then the mouseIn stuff doesn't work-->
                         <div class="col-md-7 span7" style="min-height: 60px;">
                             <div data-ng-show="directiveOptions.single && queue.length === 0" class="pull-left">
-                                <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
+                                <span class="btn btn-success fileinput-button" ng-class="{disabled: isDisabled}">
                                     <i class="glyphicon glyphicon-plus icon icon-plus"></i>
                                     <span>Upload {{info.label || (info.name | titleCase)}}</span>
-                                    <input type="file" name="files" ng-disabled="disabled" placeholder="Upload {{info.label || (info.name | titleCase)}}">
+                                    <input type="file" name="files" ng-disabled="isDisabled" placeholder="Upload {{info.label || (info.name | titleCase)}}">
                                 </span>
                             </div>
                             <div data-ng-show="directiveOptions.single" class="pull-left">
@@ -24,16 +24,16 @@
                                 </div>
                             </div>
                             <div data-ng-show="directiveOptions.single" class="pull-left file-delete-div">
-                                <button ng-show="mouseIn" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy($event)">
+                                <button ng-show="mouseIn && !isDisabled" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy($event)">
                                     <i class="glyphicon glyphicon-trash icon icon-trash"></i>
                                 </button>
                             </div>
                             <!-- The fileinput-button span is used to style the file input field as button -->
                             <span data-ng-hide="directiveOptions.single">
-                                <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
+                                <span class="btn btn-success fileinput-button" ng-class="{disabled: isDisabled}">
                                     <i class="glyphicon glyphicon-plus icon icon-plus"></i>
                                     <span>Add files...</span>
-                                    <input type="file" name="files" multiple ng-disabled="disabled" placeholder="Upload {{info.label || (info.name | titleCase)}}">
+                                    <input type="file" name="files" multiple ng-disabled="isDisabled" placeholder="Upload {{info.label || (info.name | titleCase)}}">
                                 </span>
                             </span>
                             <button type="button" data-ng-hide="directiveOptions.autoupload" class="btn btn-primary start" data-ng-click="submit()">
@@ -105,7 +105,7 @@
                                     <span>Cancel</span>
                                 </button>
                                 <button type="button" class="btn btn-danger destroy" data-ng-click="file.$destroy()"
-                                        data-ng-hide="!file.$destroy" data-ng-controller="FileDestroyController">
+                                        data-ng-hide="!file.$destroy || isDisabled" data-ng-controller="FileDestroyController">
                                     <i class="glyphicon glyphicon-trash icon icon-trash"></i>
                                     <span>Delete</span>
                                 </button>

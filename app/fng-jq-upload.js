@@ -181,7 +181,7 @@
             });
 
         }])
-        .directive('fngJqUploadForm', ["pluginHelper", "$rootScope", function (pluginHelper, $rootScope) {
+        .directive('fngJqUploadForm', ['pluginHelper', '$rootScope', function (pluginHelper, $rootScope) {
             return {
                 link: function (scope, element, attrs, ngModel) {
                     angular.extend(scope, pluginHelper.extractFromAttr(attrs, 'fngJqUploadForm'));
@@ -194,7 +194,7 @@
                     scope.directiveOptions.url = '/api/file/upload/' + scope.formScope.modelName;
                     scope.directiveOptions.sizeLimit = scope.directiveOptions.sizelimit;
                     scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
-                    scope.isDisabled = $rootScope.isSecurelyDisabled(scope.info.id);
+                    scope.isDisabled = typeof $rootScope.isSecurelyDisabled === "function" ? $rootScope.isSecurelyDisabled(scope.info.id) : false;
                     scope.name = scope.passedParams.name;
                     scope.ngModel = ngModel;
                 },

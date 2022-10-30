@@ -194,7 +194,7 @@
                     scope.directiveOptions.url = '/api/file/upload/' + scope.formScope.modelName;
                     scope.directiveOptions.sizeLimit = scope.directiveOptions.sizelimit;
                     scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
-                    scope.isDisabled = typeof $rootScope.isSecurelyDisabled === "function" ? $rootScope.isSecurelyDisabled(scope.info.id) : false;
+                    scope.isDisabled = typeof $rootScope.isSecurelyDisabled === 'function' ? $rootScope.isSecurelyDisabled(scope.info.id) : false;
                     scope.name = scope.passedParams.name;
                     scope.ngModel = ngModel;
                 },

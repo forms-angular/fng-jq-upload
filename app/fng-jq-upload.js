@@ -96,6 +96,12 @@
                         index = $scope.$parent.$index;  // Works for use case where file obj sits in an array
                     }
                     if (index !== undefined) {
+                        if (!retVal[index]) {
+                            // when setUpAttachments() is called from $scope.$on('fngCancel'...), index can refer to an array
+                            // element that was added, and then cancelled before ever being saved, and therefore no longer exists.
+                            // in this case, there's nothing we can or should be doing, so should just...
+                            return;
+                        }
                         if (!retVal[index][lastPart]) {
                             retVal[index][lastPart] = [];
                         }

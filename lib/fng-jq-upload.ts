@@ -3,7 +3,7 @@ import * as Busboy from 'busboy';
 import * as path from 'path';
 import * as ims from 'imagemagick-stream';
 import * as Mongoose from "mongoose";
-import {Collection, GridFSBucket, MongoError, ObjectID} from "mongodb";
+import {Collection, GridFSBucket, MongoError, ObjectId} from "mongodb";
 import * as stream from "stream";
 
 interface JqUploadOptions {
@@ -164,7 +164,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let model = req.params.model;
             let resource = fng.getResource(model);
             let id: string = req.params.id;
-            let idObj: typeof ObjectID;
+            let idObj: typeof ObjectId;
             let files = fng.mongoose.connection.db.collection(resource.model.collection.collectionName+'.files');
             let cursor = files.find({'metadata.original_id': id});
             let thumbnailData = await cursor.toArray();

@@ -3,8 +3,8 @@ import * as Busboy from 'busboy';
 import * as path from 'path';
 import * as ims from 'imagemagick-stream';
 import * as Mongoose from "mongoose";
-import {Collection, GridFSBucket, MongoError, ObjectId} from "mongodb";
 import * as stream from "stream";
+import { GridFSBucket, MongoError } from "mongodb";
 
 interface JqUploadOptions {
     debug?: Boolean;
@@ -48,7 +48,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             if (callback == null) {
                 callback = function() {};
             }
-            options._id = new fng.mongoose.mongo.ObjectID();
+            options._id = new Mongoose.Types.ObjectId();
             options.mode = 'w';
             let openOptions: any = {};
             if (options.metadata) {
@@ -70,7 +70,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
         });
         let mongo = fng.mongoose.mongo;
         let resource = fng.getResource(model);
-        const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
+        const gridFSBucket: GridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
         let promises: any = [];
         busboy.on('file', function(fieldname, file, filename) {
             return promises.push(new Promise(function(resolve, reject) {
@@ -145,7 +145,7 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let mongo = fng.mongoose.mongo;
             let model = req.params.model;
             let resource = fng.getResource(model);
-            const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
+            const gridFSBucket: GridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
             let readstream = gridFSBucket.openDownloadStream(mongo.ObjectId(req.params.id));
             readstream.on("error", function(err: Error) {
                 res.status(400).send(err.message);
@@ -164,17 +164,16 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
             let model = req.params.model;
             let resource = fng.getResource(model);
             let id: string = req.params.id;
-            let idObj: typeof ObjectId;
-            let files = fng.mongoose.connection.db.collection(resource.model.collection.collectionName+'.files');
+            let idObj: Mongoose.Types.ObjectId;
+            let files: Mongoose.Collection = fng.mongoose.connection.db.collection(resource.model.collection.collectionName+'.files');
             let cursor = files.find({'metadata.original_id': id});
             let thumbnailData = await cursor.toArray();
             if (thumbnailData.length === 1) {
-                idObj = thumbnailData[0]._id;
+                idObj = thumbnailData[0]._id as Mongoose.Types.ObjectId;
             } else {
-                idObj = mongo.ObjectId(id)
+                idObj = new Mongoose.Types.ObjectId(id);
             }
-            const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
-
+            const gridFSBucket: GridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
             let readstream = gridFSBucket.openDownloadStream(idObj);
             readstream.on('error', function(err: Error) {
                 res.status(400).send(err.message);
@@ -189,27 +188,27 @@ export function Controller(fng: any, processArgs: (options: any, array: Array<an
         let mongo = fng.mongoose.mongo;
         let model = req.params.model;
         let resource = fng.getResource(model);
-        const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
+        const gridFSBucket: GridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {bucketName: resource.model.collection.name});
 
         // Find the thumbnail image based on the original_id stored in the metadata
         // for the original file and remove it
-        let collection = fng.mongoose.connection.collection(resource.model.collection.name + '.files');
-        collection.findOne({ 'metadata.original_id': req.params.id }, { }, function (err : MongoError | null, obj: any) {
-            if (err) { return; }
-            if (obj) {
-                gridFSBucket.delete(obj._id);   // Ignore any errors
-            }
-        });
+        let collection: Mongoose.Collection = fng.mongoose.connection.collection(resource.model.collection.name + '.files');
+        collection.findOne({ 'metadata.original_id': req.params.id }, {})
+            .then((obj: any) => {
+                gridFSBucket.delete(obj._id);               
+            })
+            .catch((err: MongoError) => {
+                // Ignore any errors
+            });
 
         // remove the original file too
-        gridFSBucket.delete(mongo.ObjectId(req.params.id), function (err: MongoError | undefined) {
-            if (err) {
-                res.status(500).send(err.message);
-            } else {
+        gridFSBucket.delete(new mongo.ObjectId(req.params.id))
+            .then(() => {
                 res.sendStatus(200);
-            }
-        });
-
+            })
+            .catch((err: MongoError) => {
+                res.status(500).send(err.message);
+            });
     }]));
 
 }

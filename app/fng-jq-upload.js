@@ -187,10 +187,10 @@
             });
 
         }])
-        .directive('fngJqUploadForm', ['pluginHelper', '$rootScope', function (pluginHelper, $rootScope) {
+        .directive('fngJqUploadForm', ['PluginHelperService', '$rootScope', function (PluginHelperService, $rootScope) {
             return {
                 link: function (scope, element, attrs, ngModel) {
-                    angular.extend(scope, pluginHelper.extractFromAttr(attrs, 'fngJqUploadForm'));
+                    angular.extend(scope, PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm'));
                     // Pick up options from the mongoose schema
                     scope.passedParams = scope.formScope[attrs.schema];
                     angular.extend(scope.options, scope.passedParams.fngJqUploadForm);

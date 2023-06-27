@@ -68,7 +68,7 @@
                 template: '<form-input formstyle="inline" schema="schema" model="record" forceform="true"></form-input>'
             };
         })
-        .controller('fngJqUploadCtrl', ['$scope', function ($scope) {
+        .controller('FngJqUploadCtrl', ['$scope', function ($scope) {
             $scope.loadingFiles = false;
             $scope.formScope = $scope.$parent;
 
@@ -187,10 +187,10 @@
             });
 
         }])
-        .directive('fngJqUploadForm', ['pluginHelper', '$rootScope', function (pluginHelper, $rootScope) {
+        .directive('fngJqUploadForm', ['PluginHelperService', '$rootScope', function (PluginHelperService, $rootScope) {
             return {
                 link: function (scope, element, attrs, ngModel) {
-                    angular.extend(scope, pluginHelper.extractFromAttr(attrs, 'fngJqUploadForm'));
+                    angular.extend(scope, PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm'));
                     // Pick up options from the mongoose schema
                     scope.passedParams = scope.formScope[attrs.schema];
                     angular.extend(scope.options, scope.passedParams.fngJqUploadForm);
@@ -208,7 +208,7 @@
                 require: '?ngModel',
                 templateUrl: 'templates/fileform.html',
                 scope: {},
-                controller: 'fngJqUploadCtrl'
+                controller: 'FngJqUploadCtrl'
             };
         }])
         .controller('FileDestroyController', ['$scope', '$http', function ($scope, $http) {

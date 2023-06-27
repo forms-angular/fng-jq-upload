@@ -15,8 +15,8 @@
   },
   "devDependencies": {
     "@types/busboy": "0.3.1",
-    "@types/node": "^18",
     "@types/express": "^4.17.12",
+    "@types/node": "^18",
     "angular": "1.8.3",
     "angular-animate": "1.8.3",
     "angular-elastic": "2.5.1",
@@ -27,7 +27,7 @@
     "async": "3.2.4",
     "body-parser": "1.20.1",
     "express": "4.18.2",
-    "forms-angular": "0.12.0-beta.217",
+    "forms-angular": "file:../forms-angular/forms-angular-0.12.0-beta.217.tgz",
     "grunt": "^1.5.3",
     "grunt-angular-templates": "^1.2.0",
     "grunt-contrib-concat": "2.1.0",

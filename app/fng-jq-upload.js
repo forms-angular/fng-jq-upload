@@ -81,7 +81,7 @@
                     }                    
                     if (!retVal && initialise) {
                         if (!record) {
-                            throw new Error("Cannot initialise record." + $scope.info.name + " - record is not defined");
+                            throw new Error('Cannot initialise record.  ' + $scope.info.name + ' - record is not defined');
                         }
                         retVal = record[$scope.info.name] = [];
                     }

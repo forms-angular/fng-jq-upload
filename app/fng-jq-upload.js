@@ -160,6 +160,9 @@
                         } else {
                             queueElement.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png';
                         }
+                        if (!$scope.$$childHead.queue) {
+                            $scope.$$childHead.queue = []; // shouldn't happen, but have seen in Sentry
+                        }
                         $scope.$$childHead.queue.push(queueElement);
                     }
                 }

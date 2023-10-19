@@ -75,9 +75,15 @@
             $scope.dataField = function (initialise) {
                 var retVal;
                 if ($scope.info.name.indexOf('.') === -1) {
-                    retVal = $scope.formScope.record[$scope.info.name];
+                    var record = $scope.formScope.record;
+                    if (record) {
+                        retVal = record[$scope.info.name];
+                    }                    
                     if (!retVal && initialise) {
-                        retVal = $scope.formScope.record[$scope.info.name] = [];
+                        if (!record) {
+                            throw new Error(`Cannot initialise record. ${$scope.info.name} - record is not defined`);
+                        }
+                        retVal = record[$scope.info.name] = [];
                     }
                 } else if ($scope.options.subschema) {
                     var modelBase = $scope.formScope.record;

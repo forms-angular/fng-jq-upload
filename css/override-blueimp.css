@@ -33,3 +33,7 @@
     min-height: 24px;
     min-width: 24px;
 }
+
+div.fileupload:not(.fileupload-processing) .col-md-5 > div.progress.progress-striped, div.fileupload:not(.fileupload-processing) .col-md-5 > div.progress-extended {
+    display: none;
+}

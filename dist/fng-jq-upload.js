@@ -146,7 +146,7 @@
                             'deleteUrl': '/api/file/' + $scope.formScope.modelName + '/' + storedElement._id,
                             'deleteType': 'DELETE'
                         };
-                        if (storedName) {
+                        if (storedName && !$scope.options.defaultThumbnail) {
                             switch (storedName.slice(storedName.length - 4, storedName.length).toLowerCase()) {     // extension
                                 case '.gif':
                                 case '.png':

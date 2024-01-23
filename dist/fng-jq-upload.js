@@ -161,7 +161,7 @@
               if (lc.endsWith(extRequiringThumbnail)) {
                 // historically (when files were always stored in MongoDB), we didn't store the thumbnailId.  instead, we stored
                 // the id of the original image in the meta data of the thumbnail image, and looked it up like that using an entirely
-                // separate end-point.  Now, we just store the thumbnail id, which means we can use the same end-point whether
+                // separate end-point.  Now, we do store the thumbnail id, which means we can use the same end-point whether
                 // it's the original or the thumbnail that is being requested
                 if (thumbnailId) {
                   addTo.thumbnailUrl = "/api/file/" + modelAndLocation + "/" + thumbnailId;
@@ -172,6 +172,13 @@
               }
             }
           }
+        }
+
+        function assignQueueToFormScope() {
+          // also provide the form scope with a reference to the queue.  this will not be reliable for forms hosting
+          // more than one fng-jq-upload directive, but in all other cases, will allow the form access
+          // to (for example) the delete URL, which could be useful if they want to provide their own delete option
+          $scope.formScope.fngJqUploadFileQueue = $scope.$$childHead.queue;
         }
 
         function setUpAttachments() {
@@ -197,6 +204,7 @@
             }
             $scope.$$childHead.queue.push(queueElement);
           }
+          assignQueueToFormScope()
         }
 
         if (!$scope.formScope.newRecord) {
@@ -258,6 +266,7 @@
           // called again here
           addAttachmentUrls($scope.$$childHead.queue[0], location, _id, filename, thumbnailId);
           $scope.ngModel.$setDirty();
+          assignQueueToFormScope();
         });
       },
     ])

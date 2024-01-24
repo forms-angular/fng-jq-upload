@@ -19,7 +19,7 @@
                             <div data-ng-show="directiveOptions.single" class="pull-left">
                                 <div class="preview" ng-show="!!queue[0].thumbnailUrl">
                                     <a data-ng-href="{{queue[0].url}}" title="{{queue[0].name}}" download="{{queue[0].name}}" target="_blank" data-gallery ng-mouseover="mouseIn=1" ng-mouseout="mouseIn=0">
-                                        <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="" width="{{ options.width || 80 }}" height="{{ options.height || 60 }}">
+                                        <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="">
                                     </a>
                                 </div>
                             </div>
@@ -40,10 +40,13 @@
                                 <i class="glyphicon glyphicon-upload icon icon-upload"></i>
                                 <span>Start upload</span>
                             </button>
-                            <button ng-show="active()" type="button" class="btn btn-warning cancel" data-ng-click="cancel()">
+                            <button data-ng-show="active()" type="button" class="btn btn-warning cancel" data-ng-click="cancel()">
                                 <i class="glyphicon glyphicon-ban icon-circle icon-ban-circle"></i>
                                 <span>Cancel upload</span>
                             </button>
+                            <div data-ng-show="uploadError" style="padding-top: 5px;">
+                                <span class="error text-danger">{{ uploadError }}</span>
+                            </div>
                             <!-- The global file processing state -->
                             <span class="fileupload-process"></span>
                         </div>

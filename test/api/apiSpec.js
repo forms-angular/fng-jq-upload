@@ -22,7 +22,7 @@ describe('API', function () {
 
         Applicant = require(path.join(__dirname, '../models/applicant'));
         fng = new (FormsAngular)(mongoose, app, {
-            urlPrefix: '/api/', plugins: {JQMongoFileUploader: {plugin: jqUploads.Controller, options: {}}}
+            urlPrefix: '/api/', plugins: {JQMongoFileUploader: {plugin: jqUploads.controller, options: {}}}
         });
 
         mongoose.connect('mongodb://localhost:27017/forms-ng_test');

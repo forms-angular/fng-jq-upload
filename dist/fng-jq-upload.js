@@ -4,9 +4,9 @@
 //  or https://sqooush.app
 
 (function () {
-  "use strict";
+  'use strict';
 
-  var app = angular.module("uploadModule", ["blueimp.fileupload"]);
+  var app = angular.module('uploadModule', ['blueimp.fileupload']);
 
   var getIdFromUrl = function (url) {
     var breakdown = /\/file\/(.+?)\/([0-9a-f]{24})/.exec(url);
@@ -14,14 +14,14 @@
   };
 
   app
-    .controller("FngUploadAdditFieldsCtrl", [
-      "$scope",
-      "$timeout",
+    .controller('FngUploadAdditFieldsCtrl', [
+      '$scope',
+      '$timeout',
       function ($scope, $timeout) {
         $scope.record = {};
 
         $scope.$watch(
-          "record",
+          'record',
           function (newVal, oldVal) {
             if (newVal !== oldVal) {
               $scope.uploadForm.formScope[$scope.uploadForm.formScope.topLevelFormName].$setDirty();
@@ -42,10 +42,10 @@
 
         function doSetUp() {
           if (!$scope.formScope.newRecord) {
-            var watchDeregister = $scope.formScope.$watch("phase", function (newVal) {
-              if (newVal === "ready") {
+            var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {
+              if (newVal === 'ready') {
                 setUpAdditFields();
-                $scope.$on("fngCancel", function () {
+                $scope.$on('fngCancel', function () {
                   setUpAdditFields();
                 });
                 watchDeregister();
@@ -60,7 +60,7 @@
         $timeout(doSetUp);
       },
     ])
-    .directive("fngUploadAdditFields", function () {
+    .directive('fngUploadAdditFields', function () {
       return {
         link: function (scope, element, attrs) {
           scope.uploadForm = scope.$parent.$parent.$parent;
@@ -69,19 +69,19 @@
           scope.file = parseInt(attrs.file);
         },
         scope: {},
-        controller: "FngUploadAdditFieldsCtrl",
+        controller: 'FngUploadAdditFieldsCtrl',
         template: '<form-input formstyle="inline" schema="schema" model="record" forceform="true"></form-input>',
       };
     })
-    .controller("FngJqUploadCtrl", [
-      "$scope",
+    .controller('FngJqUploadCtrl', [
+      '$scope',
       function ($scope) {
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
 
         $scope.dataField = function (initialise) {
           var retVal;
-          if ($scope.info.name.indexOf(".") === -1) {
+          if ($scope.info.name.indexOf('.') === -1) {
             var record = $scope.formScope.record;
             if (record) {
               retVal = record[$scope.info.name];
@@ -99,7 +99,7 @@
             var lastPart = compoundName.slice(root.length + 1);
 
             retVal = modelBase;
-            var rootParts = root.split(".");
+            var rootParts = root.split('.');
             for (var i = 0, l = rootParts.length; i < l; i++) {
               retVal = retVal[rootParts[i]];
             }
@@ -122,51 +122,51 @@
             } else {
               if ($scope.options.subkey) {
                 var arrayIndex =
-                  $scope.formScope["$_arrayOffset_" + root.replace(/\./g, "_") + "_" + $scope.options.subkeyno];
+                  $scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno];
                 if (arrayIndex != null && arrayIndex !== undefined && arrayIndex !== -1) {
                   retVal = retVal[arrayIndex][lastPart];
                 } else {
                   retVal = undefined;
                 }
               } else {
-                console.log("No support for this yet");
+                console.log('No support for this yet');
                 //modelString += '[$index].' + lastPart;
                 //idString = null;
                 //nameString = compoundName.replace(/\./g, '-');
               }
             }
           } else {
-            console.log("No support for this yet either");
+            console.log('No support for this yet either');
           }
           return retVal;
         };
 
         function addAttachmentUrls(addTo, location, id, filename, thumbnailId) {
-          const modelAndLocation = $scope.formScope.modelName + "/" + location;
-          addTo.url = "/api/file/" + modelAndLocation + "/" + id;
+          const modelAndLocation = $scope.formScope.modelName + '/' + location;
+          addTo.url = '/api/file/' + modelAndLocation + '/' + id;
           addTo.deleteUrl = addTo.url;
           if (thumbnailId) {
             // if we have a thumbnailId, we append this such that the fileId param becomes a comma-separated list, which the back-end
             // can iterate over, deleting each of the two files using identical logic
-            addTo.deleteUrl += "," + thumbnailId;
+            addTo.deleteUrl += ',' + thumbnailId;
           }
-          addTo.deleteType = "DELETE";
-          addTo.thumbnailUrl = "https://upload.wikimedia.org/wikipedia/commons/6/6c/Iconoir_journal-page.svg";
-          //addTo.thumbnailUrl = "https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png"; // the default thumbnail location - might change it below
+          addTo.deleteType = 'DELETE';
+          addTo.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Iconoir_journal-page.svg';
+          //addTo.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png'; // the default thumbnail location - might change it below
           if (filename && !$scope.options.defaultThumbnail) {
             const lc = filename.toLowerCase();
             // this list of extensions from which thumbnails can be derived is also hard-coded in fng-jq-upload server
             // (see createThumbnailStreamIfNeeded())
-            for (const extRequiringThumbnail of [".gif", ".png", ".jpg", ".jpeg"]) {
+            for (const extRequiringThumbnail of ['.gif', '.png', '.jpg', '.jpeg']) {
               if (lc.endsWith(extRequiringThumbnail)) {
                 // historically (when files were always stored in MongoDB), we didn't store the thumbnailId.  instead, we stored
                 // the id of the original image in the meta data of the thumbnail image, and looked it up like that using an entirely
                 // separate end-point.  Now, we do store the thumbnail id, which means we can use the same end-point whether
                 // it's the original or the thumbnail that is being requested
                 if (thumbnailId) {
-                  addTo.thumbnailUrl = "/api/file/" + modelAndLocation + "/" + thumbnailId;
+                  addTo.thumbnailUrl = '/api/file/' + modelAndLocation + '/' + thumbnailId;
                 } else {
-                  addTo.thumbnailUrl = "/api/file/" + modelAndLocation + "/thumbnail/" + id;
+                  addTo.thumbnailUrl = '/api/file/' + modelAndLocation + '/thumbnail/' + id;
                 }                
                 break;
               }
@@ -204,15 +204,15 @@
             }
             $scope.$$childHead.queue.push(queueElement);
           }
-          assignQueueToFormScope()
+          assignQueueToFormScope();
         }
 
         if (!$scope.formScope.newRecord) {
-          var watchDeregister = $scope.formScope.$watch("phase", function (newVal) {
-            if (newVal === "ready") {
+          var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {
+            if (newVal === 'ready') {
               $scope.$$childHead.queue = $scope.$$childHead.queue || [];
               setUpAttachments();
-              $scope.$on("fngCancel", function () {
+              $scope.$on('fngCancel', function () {
                 $scope.$$childHead.queue = [];
                 setUpAttachments();
               });
@@ -222,11 +222,11 @@
           });
         }
 
-        $scope.$on("fileuploadstart", function () {
+        $scope.$on('fileuploadstart', function () {
           delete $scope.uploadError;
         });
 
-        $scope.$on("fileuploadfail", function (event, data) {
+        $scope.$on('fileuploadfail', function (event, data) {
           // clear out the failed queue item so another upload can be attempted
           $scope.$$childHead.queue = [];
           let error;
@@ -234,19 +234,19 @@
             const xhr = data.xhr();
             let response;
             try {
-              response = JSON.parse(xhr.responseText)
+              response = JSON.parse(xhr.responseText);
               error = response.error || response;
-            } catch {
+            } catch (e) {
               error = xhr.responseText;
             }
           }
           if (!error) {
-            error = data.errorThrown || "an unexpected error occurred";
+            error = data.errorThrown || 'an unexpected error occurred';
           }
           $scope.uploadError = error;
         });
 
-        $scope.$on("fileuploaddone", function (event, data) {
+        $scope.$on('fileuploaddone', function (event, data) {
           const field = $scope.dataField(true);
           const fileDetails = data.result.files[0];
           const _id = fileDetails.id;
@@ -270,13 +270,13 @@
         });
       },
     ])
-    .directive("fngJqUploadForm", [
-      "PluginHelperService",
-      "$rootScope",
+    .directive('fngJqUploadForm', [
+      'PluginHelperService',
+      '$rootScope',
       function (PluginHelperService, $rootScope) {
         return {
           link: function (scope, element, attrs, ngModel) {
-            angular.extend(scope, PluginHelperService.extractFromAttr(attrs, "fngJqUploadForm"));
+            angular.extend(scope, PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm'));
             // Pick up options from the mongoose schema
             scope.passedParams = scope.formScope[attrs.schema];
             angular.extend(scope.options, scope.passedParams.fngJqUploadForm);
@@ -284,26 +284,26 @@
               scope.directiveOptions.additFields = JSON.parse(scope.options.additFields);
             }
             scope.directiveOptions.url =
-              "/api/file/upload/" + scope.formScope.modelName + "/" + encodeURIComponent(scope.info.name);
+              '/api/file/upload/' + scope.formScope.modelName + '/' + encodeURIComponent(scope.info.name);
             scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
             scope.isDisabled =
-              typeof $rootScope.isSecurelyDisabled === "function"
+              typeof $rootScope.isSecurelyDisabled === 'function'
                 ? $rootScope.isSecurelyDisabled(scope.info.id)
                 : false;
             scope.name = scope.passedParams.name;
             scope.ngModel = ngModel;
           },
-          restrict: "E",
-          require: "?ngModel",
-          templateUrl: "templates/fileform.html",
+          restrict: 'E',
+          require: '?ngModel',
+          templateUrl: 'templates/fileform.html',
           scope: {},
-          controller: "FngJqUploadCtrl",
+          controller: 'FngJqUploadCtrl',
         };
       },
     ])
-    .controller("FileDestroyController", [
-      "$scope",
-      "$http",
+    .controller('FileDestroyController', [
+      '$scope',
+      '$http',
       function ($scope, $http) {
         var file = $scope.file,
           state;
@@ -327,19 +327,19 @@
             return state;
           };
           file.$destroy = function ($event) {
-            if (!$event || !$event.target.className.includes("ng-hide")) {
+            if (!$event || !$event.target.className.includes('ng-hide')) {
               $scope.$parent.$parent.mouseIn = false;
-              state = "pending";
+              state = 'pending';
               return $http({
                 url: file.deleteUrl,
                 method: file.deleteType,
               }).then(
                 function () {
-                  state = "resolved";
+                  state = 'resolved';
                   removeFromRecord(file);
                 },
                 function () {
-                  state = "rejected";
+                  state = 'rejected';
                   removeFromRecord(file);
                 }
               );

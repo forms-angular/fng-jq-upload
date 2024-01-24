@@ -236,7 +236,7 @@
             try {
               response = JSON.parse(xhr.responseText)
               error = response.error || response;
-            } catch {
+            } catch (e) {
               error = xhr.responseText;
             }
           }

@@ -60,7 +60,7 @@ describe('API', function () {
             files.countDocuments()
                 .then(function (start) {
                     request(app)
-                        .post('/api/file/upload/Applicant')
+                        .post('/api/file/upload/Applicant/textField')
                         .attach('files', 'test/files/test.txt')
                         .expect('Content-Type', /json/)
                         .expect(200)
@@ -83,7 +83,7 @@ describe('API', function () {
             files.countDocuments()
                 .then(function (start) {
                     void request(app)
-                        .post('/api/file/upload/Applicant')
+                        .post('/api/file/upload/Applicant/photoField')
                         .attach('files', 'test/files/sample.gif')
                         .expect('Content-Type', /json/)
                         .expect(200)

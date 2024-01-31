@@ -75,7 +75,8 @@
     })
     .controller('FngJqUploadCtrl', [
       '$scope',
-      function ($scope) {
+      '$http',
+      function ($scope, $http) {
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
 
@@ -141,18 +142,41 @@
           return retVal;
         };
 
+        async function presignUrlIfNecessary(location, unsignedUrl) {
+          // if we have a location and it's > 1, we assume that unsignedUrl will yield not the file itself, but rather a
+          // pre-signed url which we could then use to request the file ourselves.  this allows the server to supply us with
+          // a pre-signed download url (from Amazon, for example), enabling us to save on bandwidth by NOT requiring the
+          // server to request the file from a 3rd-party storage service and then forwarding it onto us.
+          if (location > 1) {
+            const response = await $http.get(unsignedUrl);
+            if (response.status === 201) {
+              const url = response.data.clientUrl;
+              return url;
+            } else {
+              const msg = 'Unexpected response to getPresignedUrl (status' + response.status + ')';
+              throw new Error(msg);
+            }
+          } else {
+            return unsignedUrl;
+          }
+        }
+
         function addAttachmentUrls(addTo, location, id, filename, thumbnailId) {
           const modelAndLocation = $scope.formScope.modelName + '/' + location;
-          addTo.url = '/api/file/' + modelAndLocation + '/' + id;
-          addTo.deleteUrl = addTo.url;
+          let url = '/api/file/' + modelAndLocation + '/' + id;
+          presignUrlIfNecessary(location, url).then((possiblySignedUrl) => {
+            $scope.$apply(() => {
+              addTo.url = possiblySignedUrl;
+            });
+          })
+          addTo.deleteUrl = url;
           if (thumbnailId) {
             // if we have a thumbnailId, we append this such that the fileId param becomes a comma-separated list, which the back-end
             // can iterate over, deleting each of the two files using identical logic
             addTo.deleteUrl += ',' + thumbnailId;
           }
           addTo.deleteType = 'DELETE';
-          addTo.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Iconoir_journal-page.svg';
-          //addTo.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/77/Icon_New_File_256x256.png'; // the default thumbnail location - might change it below
+          addTo.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Iconoir_journal-page.svg'; // the default thumbnail location - might change it below
           if (filename && !$scope.options.defaultThumbnail) {
             const lc = filename.toLowerCase();
             // this list of extensions from which thumbnails can be derived is also hard-coded in fng-jq-upload server
@@ -164,10 +188,15 @@
                 // separate end-point.  Now, we do store the thumbnail id, which means we can use the same end-point whether
                 // it's the original or the thumbnail that is being requested
                 if (thumbnailId) {
-                  addTo.thumbnailUrl = '/api/file/' + modelAndLocation + '/' + thumbnailId;
+                  const url = '/api/file/' + modelAndLocation + '/' + thumbnailId;
+                  presignUrlIfNecessary(location, url).then((possiblySignedUrl) => {
+                    $scope.$apply(() => {
+                      addTo.thumbnailUrl = possiblySignedUrl;
+                    });
+                  });
                 } else {
                   addTo.thumbnailUrl = '/api/file/' + modelAndLocation + '/thumbnail/' + id;
-                }                
+                }
                 break;
               }
             }
@@ -258,7 +287,7 @@
             filename,
             size: fileDetails.size,
             location,
-            thumbnailId
+            thumbnailId,
           });
           // at the point of fileuploaddone being fired, $scope.$$childHead.queue[0] will have already been populated
           // with the details of the file provided by the server.  we just need to decorate this now with the
@@ -286,10 +315,14 @@
             scope.directiveOptions.url =
               '/api/file/upload/' + scope.formScope.modelName + '/' + encodeURIComponent(scope.info.name);
             scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
-            scope.isDisabled =
-              typeof $rootScope.isSecurelyDisabled === 'function'
-                ? $rootScope.isSecurelyDisabled(scope.info.id)
-                : false;
+            if (scope.passedParams.readonly) {
+              scope.isDisabled = true;
+            } else {
+              scope.isDisabled =
+                typeof $rootScope.isSecurelyDisabled === 'function'
+                  ? $rootScope.isSecurelyDisabled(scope.info.id)
+                  : false;
+            }
             scope.name = scope.passedParams.name;
             scope.ngModel = ngModel;
           },

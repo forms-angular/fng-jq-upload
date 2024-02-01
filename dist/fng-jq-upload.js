@@ -142,22 +142,23 @@
           return retVal;
         };
 
-        async function presignUrlIfNecessary(location, unsignedUrl) {
+        function presignUrlIfNecessary(location, unsignedUrl) {
           // if we have a location and it's > 1, we assume that unsignedUrl will yield not the file itself, but rather a
           // pre-signed url which we could then use to request the file ourselves.  this allows the server to supply us with
           // a pre-signed download url (from Amazon, for example), enabling us to save on bandwidth by NOT requiring the
           // server to request the file from a 3rd-party storage service and then forwarding it onto us.
           if (location > 1) {
-            const response = await $http.get(unsignedUrl);
-            if (response.status === 201) {
-              const url = response.data.clientUrl;
-              return url;
-            } else {
-              const msg = 'Unexpected response to getPresignedUrl (status' + response.status + ')';
-              throw new Error(msg);
-            }
+            return $http.get(unsignedUrl).then((response) => {
+              if (response.status === 201) {
+                const url = response.data.clientUrl;
+                return url;
+              } else {
+                const msg = 'Unexpected response to getPresignedUrl (status' + response.status + ')';
+                throw new Error(msg);
+              }
+            });            
           } else {
-            return unsignedUrl;
+            return Promise.resolve(unsignedUrl);
           }
         }
 
@@ -165,9 +166,7 @@
           const modelAndLocation = $scope.formScope.modelName + '/' + location;
           let url = '/api/file/' + modelAndLocation + '/' + id;
           presignUrlIfNecessary(location, url).then((possiblySignedUrl) => {
-            $scope.$apply(() => {
-              addTo.url = possiblySignedUrl;
-            });
+            addTo.url = possiblySignedUrl;
           })
           addTo.deleteUrl = url;
           if (thumbnailId) {
@@ -190,9 +189,7 @@
                 if (thumbnailId) {
                   const url = '/api/file/' + modelAndLocation + '/' + thumbnailId;
                   presignUrlIfNecessary(location, url).then((possiblySignedUrl) => {
-                    $scope.$apply(() => {
-                      addTo.thumbnailUrl = possiblySignedUrl;
-                    });
+                    addTo.thumbnailUrl = possiblySignedUrl;
                   });
                 } else {
                   addTo.thumbnailUrl = '/api/file/' + modelAndLocation + '/thumbnail/' + id;
@@ -344,7 +341,7 @@
         $scope.uploadScope = $scope.$parent.$parent.$parent;
 
         var removeFromRecord = function (file) {
-          var id = getIdFromUrl(file.url);
+          var id = getIdFromUrl(file.deleteUrl);
           var array = $scope.uploadScope.dataField();
           for (var i = array.length - 1; i >= 0; i--) {
             if (array[i]._id === id) {
@@ -355,7 +352,7 @@
           $scope.ngModel.$setDirty();
         };
 
-        if (file.url) {
+        if (file.deleteUrl) {
           file.$state = function () {
             return state;
           };

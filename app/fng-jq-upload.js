@@ -167,7 +167,7 @@
           let url = '/api/file/' + modelAndLocation + '/' + id;
           presignUrlIfNecessary(location, url).then((possiblySignedUrl) => {
             addTo.url = possiblySignedUrl;
-          })
+          });
           addTo.deleteUrl = url;
           if (thumbnailId) {
             // if we have a thumbnailId, we append this such that the fileId param becomes a comma-separated list, which the back-end

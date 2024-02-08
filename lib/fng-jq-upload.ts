@@ -41,12 +41,7 @@ export type StorageDelegate = (
   thumbnailOpts: ISchemaThumbnailOpts
 ) => Promise<IStoredFileInfo>;
 
-export type RetrievalDelegate = (
-  req: express.Request,
-  fileId: string,
-  location: number,
-  res: express.Response
-) => void;
+export type RetrievalDelegate = (req: express.Request, fileId: string, location: number, res: express.Response) => void;
 
 export type DeletionDelegate = (req: express.Request, fileId: string, location: number) => void;
 
@@ -255,47 +250,59 @@ export function controller(
             headers: req.headers as Busboy.BusboyHeaders,
             limits: { fileSize: storageLimits.maxFileSize },
           });
-          const filePromises: Promise<IStoredFileInfo>[] = [];
+          const filePromises: Promise<IStoredFileInfo | string>[] = [];
           busboy.on("file", (internalFieldname: string, file: stream, filename: string) => {
             // if we have been provided with a storageDelegate and it returns something, it is taking responsibility
-            // for storing the file.  if we haven't, or it doesn't, we'll do it ourselves (to MongoDB)
-            const promise =
-              options.storageDelegate?.(req, fieldName, file, filename, resource, schemaThumbnailOpts) ||
-              storeInMongoDB(fng, resource, file, filename, schemaThumbnailOpts);
-            filePromises.push(promise);
-          });
-          busboy.on("finish", () => {
-            return Promise.all(filePromises)
-              .then(function (files) {
-                return res.send({ files });
-              })
-              .catch((e) => {
-                // can't use instanceof here (think the compiler options need to be more up-to-date to allow that)
-                let msg: string;
-                if (TOO_LARGE_FLAG in e) {
-                  let units = "byte";
-                  let value = storageLimits.maxFileSize;
-                  if (value % 1024 === 0) {
-                    value = value / 1024;
-                    units = "kilobyte";
+            // for storing the file.  If we haven't, or it doesn't, we'll do it ourselves (to MongoDB)
+            filePromises.push(
+              (
+                options.storageDelegate?.(req, fieldName, file, filename, resource, schemaThumbnailOpts) ||
+                storeInMongoDB(fng, resource, file, filename, schemaThumbnailOpts)
+              ) // we need to catch here rather than waiting for the promise.all(..) call that we make in the busboy.on("finish")
+                // handler, below, because otherwise the error will leak out to the "next" handler and get reported to Sentry
+                .catch((e) => {
+                  // can't use instanceof here (think the compiler options need to be more up-to-date to allow that)
+                  if (TOO_LARGE_FLAG in e) {
+                    let units = "byte";
+                    let value = storageLimits.maxFileSize;
                     if (value % 1024 === 0) {
                       value = value / 1024;
-                      units = "megabyte";
+                      units = "kilobyte";
+                      if (value % 1024 === 0) {
+                        value = value / 1024;
+                        units = "megabyte";
+                      }
                     }
+                    if (value > 1) {
+                      units += "s";
+                    }
+                    return `The file is too large.  The maximum permitted size is ${value} ${units}.`;
+                  } else {
+                    return e.message || "An unexpected error occurred";
                   }
-                  if (value > 1) {
-                    units += "s";
-                  }
-                  msg = `The file is too large.  The maximum permitted size is ${value} ${units}.`;
+                })
+            );
+          });
+          busboy.on("finish", () => {
+            // we'll send errors back as an object because the front-end seems to be expecting JSON, even when
+            // the status indicates an error.  this is parsed by the fileuploadfail handler at the front end.
+            Promise.all(filePromises)
+              .then(function (filesOrErrorMessages) {
+                const firstErrorMsg = filesOrErrorMessages.find((result) => typeof result === "string");
+                if (firstErrorMsg) {
+                  res.status(500).send({ error: firstErrorMsg });
                 } else {
-                  msg = e.message || "An unexpected error occurred";
+                  res.send({ files: filesOrErrorMessages });
                 }
-                // send it back as an object as the front-end seems to only be expecting JSON, even when the status indicates
-                // an error.  this is parsed in the fileuploadfail handler at the front end.
+              })
+              .catch((e) => {
+                // because of the catch that is chained to each promise which we added to filePromises earlier, I
+                // don't think we should ever get here
+                const msg = e.message || "An unexpected error occurred";
                 return res.status(500).send({ error: msg });
               });
           });
-          return req.pipe(busboy);
+          req.pipe(busboy);
         });
       },
     ])

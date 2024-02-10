@@ -302,7 +302,7 @@
       function (PluginHelperService, $rootScope) {
         return {
           link: function (scope, element, attrs, ngModel) {
-            angular.extend(scope, PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm'));
+            angular.extend(scope, PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm', scope.formScope));
             // Pick up options from the mongoose schema
             scope.passedParams = scope.formScope[attrs.schema];
             angular.extend(scope.options, scope.passedParams.fngJqUploadForm);

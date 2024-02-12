@@ -302,7 +302,13 @@
       function (PluginHelperService, $rootScope) {
         return {
           link: function (scope, element, attrs, ngModel) {
-            angular.extend(scope, PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm', scope.formScope));
+            angular.extend(scope, PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm', scope.formScope, { setUpDynamicLabelFunc: true }));
+            // If the field's label includes @@ @@ tags (to denote pseudonyms), the setUpDynamicLabelFunc option that we have just passed
+            // to extractFromAttr() will have caused a label() function to have been set up on the passed scope.  This will be called from 
+            // our template, but to be accessible from there, needs to be migrated to scope.
+            // This dynamic label function is only required because our template uses {{ }} notation for our field's label, so the {{ }}
+            // notation that fng's PluginHelperService will use by default to deal with dynamic pseudonym replacements won't work here.
+            scope.label = scope.formScope.label;
             // Pick up options from the mongoose schema
             scope.passedParams = scope.formScope[attrs.schema];
             angular.extend(scope.options, scope.passedParams.fngJqUploadForm);

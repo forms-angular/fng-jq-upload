@@ -19,7 +19,7 @@
                             <div data-ng-show="directiveOptions.single" class="pull-left">
                                 <div class="preview" ng-show="!!queue[0].thumbnailUrl">
                                     <a data-ng-href="{{queue[0].url}}" title="{{queue[0].name}}" download="{{queue[0].name}}" target="_blank" data-gallery ng-mouseover="mouseIn=1" ng-mouseout="mouseIn=0">
-                                        <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="">
+                                        <img data-ng-src="{{queue[0].thumbnailUrl}}" alt="" width="{{ options.width || 80 }}" height="{{ options.height || 60 }}">
                                     </a>
                                 </div>
                             </div>

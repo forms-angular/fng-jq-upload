@@ -254,7 +254,7 @@
 
         $scope.$on('fileuploadfail', function (event, data) {
           // clear out the failed queue item so another upload can be attempted
-          $scope.$$childHead.queue = [];
+          $scope.$$childHead.queue.pop();
           let error;
           if (data.xhr) {
             const xhr = data.xhr();
@@ -286,11 +286,12 @@
             location,
             thumbnailId,
           });
-          // at the point of fileuploaddone being fired, $scope.$$childHead.queue[0] will have already been populated
-          // with the details of the file provided by the server.  we just need to decorate this now with the
+          // at the point of fileuploaddone being fired, the last item in $scope.$$childHead.queue will have already been
+          // populated with the details of the file provided by the server.  we just need to decorate this now with the
           // urls for downloading, deleting and retrieving a thumbnail for this item as setUpAttachments() isn't
           // called again here
-          addAttachmentUrls($scope.$$childHead.queue[0], location, _id, filename, thumbnailId);
+          const queue = $scope.$$childHead.queue;
+          addAttachmentUrls(queue[queue.length - 1], location, _id, filename, thumbnailId);
           $scope.ngModel.$setDirty();
           assignQueueToFormScope();
         });

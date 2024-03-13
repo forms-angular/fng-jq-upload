@@ -264,7 +264,7 @@
           if (typeof jqScope.active === 'function' && jqScope.active() && typeof jqScope.cancel === 'function') {
             jqScope.cancel();
           }            
-        })
+        });
 
         $scope.$on('fileuploadfail', function (event, data) {
           // clear out the failed queue item so another upload can be attempted

@@ -252,6 +252,20 @@
           delete $scope.uploadError;
         });
 
+        // if the user clicks on the "Cancel" button at the top of the page while an upload is in progress, cancel it.
+        // failing to do this will not only result in wasted storage, but if the user (without switching to another page /
+        // record first) then uploads another file, the data field array will end up containing more than 1 element (when -
+        // except when multi is true - it should only ever contain one)
+        $scope.$on("fngCancel", () => {
+          const jqScope = $scope.$$childHead;
+          if (!jqScope) {
+            return;
+          }
+          if (typeof jqScope.active === "function" && jqScope.active() && typeof jqScope.cancel === "function") {
+            jqScope.cancel();
+          }            
+        })
+
         $scope.$on('fileuploadfail', function (event, data) {
           // clear out the failed queue item so another upload can be attempted
           $scope.$$childHead.queue.pop();
@@ -269,7 +283,12 @@
           if (!error) {
             error = data.errorThrown || 'an unexpected error occurred';
           }
-          $scope.uploadError = error;
+          // "abort" is what we'll receive if the user clicks on our red Cancel button while the upload is in progress
+          // (you'd probably need to introduce a fake server-side delay to reproduce that, otherwise the cancel button
+          // isn't visible for long enough to click on)
+          if (error !== "abort") {
+            $scope.uploadError = error;
+          }          
         });
 
         $scope.$on('fileuploaddone', function (event, data) {

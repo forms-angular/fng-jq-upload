@@ -62,8 +62,8 @@ devDependencies:
     specifier: 4.18.2
     version: 4.18.2
   forms-angular:
-    specifier: 0.12.0-beta.256
-    version: 0.12.0-beta.256(express@4.18.2)(mongoose@7.3.2)
+    specifier: 0.12.0-beta.261
+    version: 0.12.0-beta.261(express@4.18.2)(mongoose@7.3.2)
   grunt:
     specifier: ^1.5.3
     version: 1.6.1
@@ -1009,8 +1009,8 @@ packages:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
     dev: true
 
-  /follow-redirects@1.15.5:
-    resolution: {integrity: sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==}
+  /follow-redirects@1.15.6:
+    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -1049,8 +1049,8 @@ packages:
       qs: 6.11.2
     dev: true
 
-  /forms-angular@0.12.0-beta.256(express@4.18.2)(mongoose@7.3.2):
-    resolution: {integrity: sha512-oTjk4qzgAUBLT7pBVP4ShkSYbLKmylJi07/5qS4Scp8tiQM55ac5y6b1PKCldsevxMH6YNz1gAxxD4dMSNpiwA==}
+  /forms-angular@0.12.0-beta.261(express@4.18.2)(mongoose@7.3.2):
+    resolution: {integrity: sha512-1NkK5VOf6EN+1C4YN/elGATtz+MPl0P/26dEWCQ/5Y5gajCX0xuxnpx8Lt3PsJntJe5HX7UUtry1InG0Vt0vfg==}
     engines: {node: '>=8.x', npm: '>=5.x'}
     peerDependencies:
       express: ^4
@@ -1418,7 +1418,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.5
+      follow-redirects: 1.15.6
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

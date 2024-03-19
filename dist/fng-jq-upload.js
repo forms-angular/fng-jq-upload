@@ -83,7 +83,8 @@
         $scope.dataField = function (initialise) {
           var retVal;
           if ($scope.info.name.indexOf('.') === -1) {
-            var record = $scope.formScope.record;
+            const model = $scope.options.model || 'record';
+            const record = $scope.formScope[model];
             if (record) {
               retVal = record[$scope.info.name];
             }
@@ -94,6 +95,7 @@
               retVal = record[$scope.info.name] = [];
             }
           } else if ($scope.options.subschema) {
+            // not supporting $scope.options?.model here yet
             var modelBase = $scope.formScope.record;
             var compoundName = $scope.info.name;
             var root = $scope.options.subschemaroot;
@@ -252,9 +254,23 @@
           delete $scope.uploadError;
         });
 
+        // if the user clicks on the "Cancel" button at the top of the page while an upload is in progress, cancel it.
+        // failing to do this will not only result in wasted storage, but if the user (without switching to another page /
+        // record first) then uploads another file, the data field array will end up containing more than 1 element (when -
+        // except when multi is true - it should only ever contain one)
+        $scope.$on('fngCancel', () => {
+          const jqScope = $scope.$$childHead;
+          if (!jqScope) {
+            return;
+          }
+          if (typeof jqScope.active === 'function' && jqScope.active() && typeof jqScope.cancel === 'function') {
+            jqScope.cancel();
+          }            
+        });
+
         $scope.$on('fileuploadfail', function (event, data) {
           // clear out the failed queue item so another upload can be attempted
-          $scope.$$childHead.queue = [];
+          $scope.$$childHead.queue.pop();
           let error;
           if (data.xhr) {
             const xhr = data.xhr();
@@ -269,7 +285,15 @@
           if (!error) {
             error = data.errorThrown || 'an unexpected error occurred';
           }
-          $scope.uploadError = error;
+          // "abort" is what we'll receive if the user clicks on our red Cancel button while the upload is in progress
+          // (you'd probably need to introduce a fake server-side delay to reproduce that, otherwise the cancel button
+          // isn't visible for long enough to click on)
+          if (error !== 'abort') {
+            $scope.uploadError = error;
+          }
+          if (error.includes('ENOTFOUND')) {
+            error = 'Failed to connect to storage service to upload file.  Have you gone offline?';
+          }         
         });
 
         $scope.$on('fileuploaddone', function (event, data) {
@@ -286,11 +310,12 @@
             location,
             thumbnailId,
           });
-          // at the point of fileuploaddone being fired, $scope.$$childHead.queue[0] will have already been populated
-          // with the details of the file provided by the server.  we just need to decorate this now with the
+          // at the point of fileuploaddone being fired, the last item in $scope.$$childHead.queue will have already been
+          // populated with the details of the file provided by the server.  we just need to decorate this now with the
           // urls for downloading, deleting and retrieving a thumbnail for this item as setUpAttachments() isn't
           // called again here
-          addAttachmentUrls($scope.$$childHead.queue[0], location, _id, filename, thumbnailId);
+          const queue = $scope.$$childHead.queue;
+          addAttachmentUrls(queue[queue.length - 1], location, _id, filename, thumbnailId);
           $scope.ngModel.$setDirty();
           assignQueueToFormScope();
         });
@@ -394,7 +419,7 @@ angular.module('uploadModule').run(['$templateCache', function($templateCache) {
   'use strict';
 
   $templateCache.put('templates/fileform.html',
-    "<div class=\"form-group control-group\" id=cg_f_{{info.name}} {{info.add}}><label for=f_{{info.name}} id={{info.name}}-label class=\"col-sm-3 control-label\">{{label ? label() : (info.label || (info.name | titleCase))}}</label><div class=\"bs3-input col-sm-9 row-fluid\"><div class=\"col-xs-12 span12 fileupload-form\"><div class=fileupload method=POST enctype=multipart/form-data data-ng-app=demo data-file-upload=directiveOptions data-ng-class=\"{'fileupload-processing': processing() || loadingFiles}\"><div class=controls><div class=\"row fileupload-buttonbar\"><div class=\"col-md-12 span7\" style=\"min-height: 60px;\"><div data-ng-show=\"directiveOptions.single && queue.length === 0\" class=pull-left><span class=\"btn btn-success fileinput-button\" ng-class=\"{disabled: isDisabled}\"><i class=\"glyphicon glyphicon-plus icon icon-plus\"></i> <span>Upload {{label ? label() : (info.label || (info.name | titleCase))}}</span> <input type=file name=files ng-disabled=isDisabled placeholder=\"Upload {{ label ? label() : (info.label || (info.name | titleCase))}}\"></span></div><div data-ng-show=directiveOptions.single class=pull-left><div class=preview ng-show=!!queue[0].thumbnailUrl><a data-ng-href={{queue[0].url}} title={{queue[0].name}} download={{queue[0].name}} target=_blank data-gallery ng-mouseover=\"mouseIn=1\" ng-mouseout=\"mouseIn=0\"><img data-ng-src={{queue[0].thumbnailUrl}} alt=\"\"></a></div></div><div data-ng-show=directiveOptions.single class=\"pull-left file-delete-div\"><button ng-show=\"mouseIn && !isDisabled\" class=\"file-delete overlay-btn\" aria-label=Delete ng-mouseover=\"mouseIn=1\" data-ng-click=queue[0].$destroy($event)><i class=\"glyphicon glyphicon-trash icon icon-trash\"></i></button></div><span data-ng-hide=directiveOptions.single><span class=\"btn btn-success fileinput-button\" ng-class=\"{disabled: isDisabled}\"><i class=\"glyphicon glyphicon-plus icon icon-plus\"></i> <span>Add files...</span> <input type=file name=files multiple ng-disabled=isDisabled placeholder=\"Upload {{info.label || (info.name | titleCase)}}\"> </span></span><button type=button data-ng-hide=directiveOptions.autoupload class=\"btn btn-primary start\" data-ng-click=submit()><i class=\"glyphicon glyphicon-upload icon icon-upload\"></i> <span>Start upload</span></button> <button data-ng-show=active() type=button class=\"btn btn-warning cancel\" data-ng-click=cancel()><i class=\"glyphicon glyphicon-ban icon-circle icon-ban-circle\"></i> <span>Cancel upload</span></button><div data-ng-show=uploadError style=\"padding-top: 5px;\"><span class=\"error text-danger\">{{ uploadError }}</span></div><span class=fileupload-process></span></div><div class=\"col-md-5 span5 fade\" data-ng-class=\"{in: active()}\"><div class=\"progress progress-striped active\" data-file-upload-progress=progress()><div class=\"progress-bar progress-bar-success\" data-ng-style=\"{width: num + '%'}\"></div></div><div class=progress-extended>&nbsp;</div></div></div><table data-ng-hide=directiveOptions.single class=\"table table-striped files ng-cloak\"><tr data-ng-repeat=\"file in queue\"><td data-ng-switch data-on=!!file.thumbnailUrl><div class=preview data-ng-switch-when=true><a data-ng-href={{file.url}} title={{file.name}} download={{file.name}} target=_blank data-gallery><img data-ng-src={{file.thumbnailUrl}} alt=\"\" width=80 height=60></a></div><div class=preview data-ng-switch-default data-file-upload-preview=file></div></td><td><p class=name data-ng-switch data-on=!!file.url><span data-ng-switch-when=true data-ng-switch data-on=!!file.thumbnailUrl><a data-ng-switch-when=true data-ng-href={{file.url}} title={{file.name}} download={{file.name}} target=_blank data-gallery>{{file.name}}</a> <a data-ng-switch-default data-ng-href={{file.url}} title={{file.name}} download={{file.name}}>{{file.name}}</a> </span><span data-ng-switch-default>{{file.name}}</span></p><strong data-ng-show=file.error class=\"error text-danger\">{{file.error}}</strong></td><td><p class=size>{{file.size | formatFileSize}}</p><div class=\"progress progress-striped active fade\" data-ng-class=\"{pending: 'in'}[file.$state()]\" data-file-upload-progress=file.$progress()><div class=\"progress-bar progress-bar-success\" data-ng-style=\"{width: num + '%'}\"></div></div></td><td ng-show=directiveOptions.additFields><fng-upload-addit-fields file={{$index}}></fng-upload-addit-fields></td><td><button type=button class=\"btn btn-primary start\" data-ng-click=file.$submit() data-ng-hide=\"!file.$submit || directiveOptions.autoupload\" data-ng-disabled=\"file.$state() == 'pending' || file.$state() == 'rejected'\"><i class=\"glyphicon glyphicon-upload icon icon-upload\"></i> <span>Start</span></button> <button type=button class=\"btn btn-warning cancel\" data-ng-click=file.$cancel() data-ng-hide=!file.$cancel><i class=\"glyphicon glyphicon-ban-circle icon icon-ban-circle\"></i> <span>Cancel</span></button> <button type=button class=\"btn btn-danger destroy\" data-ng-click=file.$destroy() data-ng-hide=\"!file.$destroy || isDisabled\" data-ng-controller=FileDestroyController><i class=\"glyphicon glyphicon-trash icon icon-trash\"></i> <span>Delete</span></button></td></tr></table></div></div></div></div></div>"
+    "<div class=\"form-group control-group\" id=cg_f_{{info.name}} {{info.add}}><label for=f_{{info.name}} id={{info.name}}-label class=\"col-sm-3 control-label\">{{label ? label() : (info.label || (info.name | titleCase))}}</label><div class=\"bs3-input col-sm-9 row-fluid\"><div class=\"col-xs-12 span12 fileupload-form\"><div class=fileupload method=POST enctype=multipart/form-data data-ng-app=demo data-file-upload=directiveOptions data-ng-class=\"{'fileupload-processing': processing() || loadingFiles}\"><div class=controls><div class=\"row fileupload-buttonbar\"><div class=\"col-md-12 span7\" style=\"min-height: 60px;\"><div data-ng-show=\"directiveOptions.single && queue.length === 0\" class=pull-left><span class=\"btn btn-success fileinput-button\" ng-class=\"{disabled: isDisabled}\"><i class=\"glyphicon glyphicon-plus icon icon-plus\"></i> <span>Upload {{label ? label() : (info.label || (info.name | titleCase))}}</span> <input type=file name=files ng-disabled=isDisabled placeholder=\"Upload {{ label ? label() : (info.label || (info.name | titleCase))}}\"></span></div><div data-ng-show=directiveOptions.single class=pull-left><div class=preview ng-show=!!queue[0].thumbnailUrl><a data-ng-href={{queue[0].url}} title={{queue[0].name}} download={{queue[0].name}} target=_blank data-gallery ng-mouseover=\"mouseIn=1\" ng-mouseout=\"mouseIn=0\"><img data-ng-src={{queue[0].thumbnailUrl}} alt=\"\" width=\"{{ options.width || 80 }}\" height=\"{{ options.height || 60 }}\"></a></div></div><div data-ng-show=\"directiveOptions.single && !active()\" class=\"pull-left file-delete-div\"><button ng-show=\"mouseIn && !isDisabled\" class=\"file-delete overlay-btn\" aria-label=Delete ng-mouseover=\"mouseIn=1\" data-ng-click=queue[0].$destroy($event)><i class=\"glyphicon glyphicon-trash icon icon-trash\"></i></button></div><span data-ng-hide=directiveOptions.single><span class=\"btn btn-success fileinput-button\" ng-class=\"{disabled: isDisabled}\"><i class=\"glyphicon glyphicon-plus icon icon-plus\"></i> <span>Add files...</span> <input type=file name=files multiple ng-disabled=isDisabled placeholder=\"Upload {{info.label || (info.name | titleCase)}}\"> </span></span><button type=button data-ng-hide=directiveOptions.autoupload class=\"btn btn-primary start\" data-ng-click=submit()><i class=\"glyphicon glyphicon-upload icon icon-upload\"></i> <span>Start upload</span></button> <button data-ng-show=active() type=button class=\"btn btn-warning cancel\" data-ng-click=cancel()><i class=\"glyphicon glyphicon-ban icon-circle icon-ban-circle\"></i> <span>Cancel upload</span></button><div data-ng-show=uploadError style=\"padding-top: 5px;\"><span class=\"error text-danger\">{{ uploadError }}</span></div><span class=fileupload-process></span></div><div class=\"col-md-5 span5 fade\" data-ng-class=\"{in: active()}\"><div class=\"progress progress-striped active\" data-file-upload-progress=progress()><div class=\"progress-bar progress-bar-success\" data-ng-style=\"{width: num + '%'}\"></div></div><div class=progress-extended>&nbsp;</div></div></div><table data-ng-hide=directiveOptions.single class=\"table table-striped files ng-cloak\"><tr data-ng-repeat=\"file in queue\"><td data-ng-switch data-on=!!file.thumbnailUrl><div class=preview data-ng-switch-when=true><a data-ng-href={{file.url}} title={{file.name}} download={{file.name}} target=_blank data-gallery><img data-ng-src={{file.thumbnailUrl}} alt=\"\" width=80 height=60></a></div><div class=preview data-ng-switch-default data-file-upload-preview=file></div></td><td><p class=name data-ng-switch data-on=!!file.url><span data-ng-switch-when=true data-ng-switch data-on=!!file.thumbnailUrl><a data-ng-switch-when=true data-ng-href={{file.url}} title={{file.name}} download={{file.name}} target=_blank data-gallery>{{file.name}}</a> <a data-ng-switch-default data-ng-href={{file.url}} title={{file.name}} download={{file.name}}>{{file.name}}</a> </span><span data-ng-switch-default>{{file.name}}</span></p><strong data-ng-show=file.error class=\"error text-danger\">{{file.error}}</strong></td><td><p class=size>{{file.size | formatFileSize}}</p><div class=\"progress progress-striped active fade\" data-ng-class=\"{pending: 'in'}[file.$state()]\" data-file-upload-progress=file.$progress()><div class=\"progress-bar progress-bar-success\" data-ng-style=\"{width: num + '%'}\"></div></div></td><td ng-show=directiveOptions.additFields><fng-upload-addit-fields file={{$index}}></fng-upload-addit-fields></td><td><button type=button class=\"btn btn-primary start\" data-ng-click=file.$submit() data-ng-hide=\"!file.$submit || directiveOptions.autoupload\" data-ng-disabled=\"file.$state() == 'pending' || file.$state() == 'rejected'\"><i class=\"glyphicon glyphicon-upload icon icon-upload\"></i> <span>Start</span></button> <button type=button class=\"btn btn-warning cancel\" data-ng-click=file.$cancel() data-ng-hide=!file.$cancel><i class=\"glyphicon glyphicon-ban-circle icon icon-ban-circle\"></i> <span>Cancel</span></button> <button type=button class=\"btn btn-danger destroy\" data-ng-click=file.$destroy() data-ng-hide=\"!file.$destroy || isDisabled\" data-ng-controller=FileDestroyController><i class=\"glyphicon glyphicon-trash icon icon-trash\"></i> <span>Delete</span></button></td></tr></table></div></div></div></div></div>"
   );
 
 }]);

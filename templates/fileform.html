@@ -23,7 +23,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div data-ng-show="directiveOptions.single" class="pull-left file-delete-div">
+                            <div data-ng-show="directiveOptions.single && !active()" class="pull-left file-delete-div">
                                 <button ng-show="mouseIn && !isDisabled" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy($event)">
                                     <i class="glyphicon glyphicon-trash icon icon-trash"></i>
                                 </button>

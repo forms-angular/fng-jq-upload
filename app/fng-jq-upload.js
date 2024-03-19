@@ -83,7 +83,8 @@
         $scope.dataField = function (initialise) {
           var retVal;
           if ($scope.info.name.indexOf('.') === -1) {
-            var record = $scope.formScope.record;
+            const model = $scope.options.model || 'record';
+            const record = $scope.formScope[model];
             if (record) {
               retVal = record[$scope.info.name];
             }
@@ -94,6 +95,7 @@
               retVal = record[$scope.info.name] = [];
             }
           } else if ($scope.options.subschema) {
+            // not supporting $scope.options?.model here yet
             var modelBase = $scope.formScope.record;
             var compoundName = $scope.info.name;
             var root = $scope.options.subschemaroot;
@@ -252,9 +254,23 @@
           delete $scope.uploadError;
         });
 
+        // if the user clicks on the "Cancel" button at the top of the page while an upload is in progress, cancel it.
+        // failing to do this will not only result in wasted storage, but if the user (without switching to another page /
+        // record first) then uploads another file, the data field array will end up containing more than 1 element (when -
+        // except when multi is true - it should only ever contain one)
+        $scope.$on('fngCancel', () => {
+          const jqScope = $scope.$$childHead;
+          if (!jqScope) {
+            return;
+          }
+          if (typeof jqScope.active === 'function' && jqScope.active() && typeof jqScope.cancel === 'function') {
+            jqScope.cancel();
+          }            
+        });
+
         $scope.$on('fileuploadfail', function (event, data) {
           // clear out the failed queue item so another upload can be attempted
-          $scope.$$childHead.queue = [];
+          $scope.$$childHead.queue.pop();
           let error;
           if (data.xhr) {
             const xhr = data.xhr();
@@ -269,7 +285,15 @@
           if (!error) {
             error = data.errorThrown || 'an unexpected error occurred';
           }
-          $scope.uploadError = error;
+          // "abort" is what we'll receive if the user clicks on our red Cancel button while the upload is in progress
+          // (you'd probably need to introduce a fake server-side delay to reproduce that, otherwise the cancel button
+          // isn't visible for long enough to click on)
+          if (error !== 'abort') {
+            $scope.uploadError = error;
+          }
+          if (error.includes('ENOTFOUND')) {
+            error = 'Failed to connect to storage service to upload file.  Have you gone offline?';
+          }         
         });
 
         $scope.$on('fileuploaddone', function (event, data) {
@@ -286,11 +310,12 @@
             location,
             thumbnailId,
           });
-          // at the point of fileuploaddone being fired, $scope.$$childHead.queue[0] will have already been populated
-          // with the details of the file provided by the server.  we just need to decorate this now with the
+          // at the point of fileuploaddone being fired, the last item in $scope.$$childHead.queue will have already been
+          // populated with the details of the file provided by the server.  we just need to decorate this now with the
           // urls for downloading, deleting and retrieving a thumbnail for this item as setUpAttachments() isn't
           // called again here
-          addAttachmentUrls($scope.$$childHead.queue[0], location, _id, filename, thumbnailId);
+          const queue = $scope.$$childHead.queue;
+          addAttachmentUrls(queue[queue.length - 1], location, _id, filename, thumbnailId);
           $scope.ngModel.$setDirty();
           assignQueueToFormScope();
         });

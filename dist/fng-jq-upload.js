@@ -83,7 +83,7 @@
         $scope.dataField = function (initialise) {
           var retVal;
           if ($scope.info.name.indexOf('.') === -1) {
-            const model = $scope.options?.model || "record";
+            const model = $scope.options.model || 'record';
             const record = $scope.formScope[model];
             if (record) {
               retVal = record[$scope.info.name];

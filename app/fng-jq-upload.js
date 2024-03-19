@@ -83,7 +83,8 @@
         $scope.dataField = function (initialise) {
           var retVal;
           if ($scope.info.name.indexOf('.') === -1) {
-            var record = $scope.formScope.record;
+            const model = $scope.options?.model || "record";
+            const record = $scope.formScope[model];
             if (record) {
               retVal = record[$scope.info.name];
             }
@@ -94,6 +95,7 @@
               retVal = record[$scope.info.name] = [];
             }
           } else if ($scope.options.subschema) {
+            // not supporting $scope.options?.model here yet
             var modelBase = $scope.formScope.record;
             var compoundName = $scope.info.name;
             var root = $scope.options.subschemaroot;
@@ -288,7 +290,10 @@
           // isn't visible for long enough to click on)
           if (error !== 'abort') {
             $scope.uploadError = error;
-          }          
+          }
+          if (error.includes('ENOTFOUND')) {
+            error = 'Failed to connect to storage service to upload file.  Have you gone offline?';
+          }         
         });
 
         $scope.$on('fileuploaddone', function (event, data) {

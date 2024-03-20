@@ -244,7 +244,7 @@
             $scope.$$childHead.queue = [];
             setUpAttachments();
           });
-        }
+        };
 
         if (!$scope.formScope.newRecord) {
           var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {

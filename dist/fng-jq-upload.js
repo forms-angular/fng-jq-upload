@@ -235,20 +235,30 @@
           assignQueueToFormScope();
         }
 
+        // this function is assigned to a property of the scope so any directive making use of this controller
+        // can call it itself in situations where the watch on formScope.watch will not do
+        $scope.initialiseJqUpload = function () {
+          $scope.$$childHead.queue = $scope.$$childHead.queue || [];
+          setUpAttachments();
+          $scope.$on('fngCancel', function () {
+            $scope.$$childHead.queue = [];
+            setUpAttachments();
+          });
+        };
+
         if (!$scope.formScope.newRecord) {
           var watchDeregister = $scope.formScope.$watch('phase', function (newVal) {
             if (newVal === 'ready') {
-              $scope.$$childHead.queue = $scope.$$childHead.queue || [];
-              setUpAttachments();
-              $scope.$on('fngCancel', function () {
-                $scope.$$childHead.queue = [];
-                setUpAttachments();
-              });
-
+              $scope.initialiseJqUpload();
               watchDeregister();
             }
           });
         }
+
+        $scope.$on('jqUpload:reinitialise', function () {
+          $scope.$$childHead.queue = [];
+          $scope.initialiseJqUpload();
+        });
 
         $scope.$on('fileuploadstart', function () {
           delete $scope.uploadError;

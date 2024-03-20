@@ -255,6 +255,11 @@
           });
         }
 
+        $scope.$on('jqUpload:reinitialise', function () {
+          $scope.$$childHead.queue = [];
+          $scope.initialiseJqUpload();
+        });
+
         $scope.$on('fileuploadstart', function () {
           delete $scope.uploadError;
         });

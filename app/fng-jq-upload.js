@@ -210,6 +210,7 @@
         }
 
         function setUpAttachments() {
+          $scope.$$childHead.queue = [];
           const storedData = $scope.dataField();
           if (!storedData) {
             return;
@@ -227,9 +228,6 @@
             // add the necessary urls for downloading, deleting and retrieving a thumbail for this item.
             // when a new item is added, addAttachmentUrls() will be called from the fileuploaddone listener
             addAttachmentUrls(queueElement, location, storedElement._id, storedName, storedElement.thumbnailId);
-            if (!$scope.$$childHead.queue) {
-              $scope.$$childHead.queue = []; // shouldn't happen, but have seen in Sentry
-            }
             $scope.$$childHead.queue.push(queueElement);
           }
           assignQueueToFormScope();
@@ -238,10 +236,8 @@
         // this function is assigned to a property of the scope so any directive making use of this controller
         // can call it itself in situations where the watch on formScope.watch will not do
         $scope.initialiseJqUpload = function () {
-          $scope.$$childHead.queue = $scope.$$childHead.queue || [];
           setUpAttachments();
           $scope.$on('fngCancel', function () {
-            $scope.$$childHead.queue = [];
             setUpAttachments();
           });
         };
@@ -256,7 +252,6 @@
         }
 
         $scope.$on('jqUpload:reinitialise', function () {
-          $scope.$$childHead.queue = [];
           $scope.initialiseJqUpload();
         });
 

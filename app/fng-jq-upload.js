@@ -255,7 +255,10 @@
         }
 
         $scope.$on('jqUpload:reinitialise', function () {
-          setUpAttachments();
+          // don't call setUpAttachments() directly from here - we call $scope.initialiseJqUpload so that
+          // directives other than fngJqUploadForm that use this controller can assign an alternative function to 
+          // $scope.initialiseJqUpload if they require additional logic to be executed when reinitialising
+          $scope.initialiseJqUpload();
         });
 
         $scope.$on('fileuploadstart', function () {

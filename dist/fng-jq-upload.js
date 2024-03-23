@@ -210,6 +210,7 @@
         }
 
         function setUpAttachments() {
+          $scope.$$childHead.queue = [];
           const storedData = $scope.dataField();
           if (!storedData) {
             return;
@@ -238,10 +239,8 @@
         // this function is assigned to a property of the scope so any directive making use of this controller
         // can call it itself in situations where the watch on formScope.watch will not do
         $scope.initialiseJqUpload = function () {
-          $scope.$$childHead.queue = $scope.$$childHead.queue || [];
           setUpAttachments();
           $scope.$on('fngCancel', function () {
-            $scope.$$childHead.queue = [];
             setUpAttachments();
           });
         };
@@ -256,8 +255,7 @@
         }
 
         $scope.$on('jqUpload:reinitialise', function () {
-          $scope.$$childHead.queue = [];
-          $scope.initialiseJqUpload();
+          setUpAttachments();
         });
 
         $scope.$on('fileuploadstart', function () {

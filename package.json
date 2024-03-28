@@ -8,13 +8,13 @@
   },
   "dependencies": {
     "blueimp-file-upload": "9.34.0",
-    "busboy": "0.3.1",
+    "busboy": "1.6.0",
     "imagemagick-stream": "4.1.1",
     "jquery": "3.6.2",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/busboy": "0.3.1",
+    "@types/busboy": "^1.5.3",
     "@types/express": "^4.17.12",
     "@types/node": "^18",
     "angular": "1.8.3",

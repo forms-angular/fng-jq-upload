@@ -3,12 +3,12 @@ import express = require("express");
 import mongoose = require("mongoose");
 import mongodb = require("mongodb");
 import path = require("path");
-
-import * as Busboy from "busboy";
+import busboy = require("busboy");
 import * as ims from "imagemagick-stream";
 import * as stream from "stream";
 
 import { fngServer } from "forms-angular/dist/server";
+import { BusboyConfig } from "busboy";
 
 // the numeric values are written to the document property that stores the reference to the file (which
 // will be of type FileSchemaObj, using schema FileSchema - see below).
@@ -246,19 +246,19 @@ export function controller(
         }
         const storageLimitsPromise = options.storageLimitsDelegate?.(req, fieldName, resource) || Promise.resolve({});
         storageLimitsPromise.then((storageLimits: IStorageLimits) => {
-          const busboy = new Busboy({
-            headers: req.headers as Busboy.BusboyHeaders,
+          const bb = busboy({
+            headers: req.headers,
             limits: { fileSize: storageLimits.maxFileSize },
           });
           const filePromises: Promise<IStoredFileInfo | string>[] = [];
-          busboy.on("file", (internalFieldname: string, file: stream, filename: string) => {
+          bb.on("file", (internalFieldname: string, file: stream, fileInfo) => {
             // if we have been provided with a storageDelegate and it returns something, it is taking responsibility
             // for storing the file.  If we haven't, or it doesn't, we'll do it ourselves (to MongoDB)
             filePromises.push(
               (
-                options.storageDelegate?.(req, fieldName, file, filename, resource, schemaThumbnailOpts) ||
-                storeInMongoDB(fng, resource, file, filename, schemaThumbnailOpts)
-              ) // we need to catch here rather than waiting for the promise.all(..) call that we make in the busboy.on("finish")
+                options.storageDelegate?.(req, fieldName, file, fileInfo.filename, resource, schemaThumbnailOpts) ||
+                storeInMongoDB(fng, resource, file, fileInfo.filename, schemaThumbnailOpts)
+              ) // we need to catch here rather than waiting for the promise.all(..) call that we make in the bb.on("close")
                 // handler, below, because otherwise the error will leak out to the "next" handler and get reported to Sentry
                 .catch((e) => {
                   // can't use instanceof here (think the compiler options need to be more up-to-date to allow that)
@@ -283,7 +283,7 @@ export function controller(
                 })
             );
           });
-          busboy.on("finish", () => {
+          bb.on("close", () => {
             // we'll send errors back as an object because the front-end seems to be expecting JSON, even when
             // the status indicates an error.  this is parsed by the fileuploadfail handler at the front end.
             Promise.all(filePromises)
@@ -302,7 +302,7 @@ export function controller(
                 return res.status(500).send({ error: msg });
               });
           });
-          req.pipe(busboy);
+          req.pipe(bb);
         });
       },
     ])

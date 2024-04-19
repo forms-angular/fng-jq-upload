@@ -166,7 +166,7 @@
 
         function addAttachmentUrls(addTo, location, id, filename, thumbnailId) {
           const modelAndLocation = $scope.formScope.modelName + '/' + location;
-          let url = '/api/file/' + modelAndLocation + '/' + id;
+          let url = '/api/file/' + modelAndLocation + '/' + id + '?fn=' + filename;
           presignUrlIfNecessary(location, url).then((possiblySignedUrl) => {
             addTo.url = possiblySignedUrl;
           });

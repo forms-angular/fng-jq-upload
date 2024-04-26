@@ -380,11 +380,15 @@ export function controller(
   fng.app.delete.apply(
     fng.app,
     processArgs(modifiedFngOpts, [
-      "file/:model/:location/:fileIdOrIds",
+      // if you think you want to change this route (in particular, changing the name of the :id param),
+      // ensure that the host app does not (through the modifiedFngArgs) inject some additional handlers
+      // (perhaps related to permissions) which expect certain params to exist.
+      // Plait developer note: :id is assumed to exist in the async function check() of permissions.ts
+      "file/:model/:location/:id",
       async function (req: express.Request, res: express.Response) {
         try {
           const location = Number.parseInt(req.params.location);
-          const fileIds = req.params.fileIdOrIds.split(",");
+          const fileId = req.params.id;
           if (location === StoreInMongoDB) {
             const mongo = fng.mongoose.mongo;
             const model = req.params.model;
@@ -392,32 +396,33 @@ export function controller(
             const gridFSBucket = new mongo.GridFSBucket(fng.mongoose.connection.db, {
               bucketName: resource.model.collection.name,
             });
-            // If we have only only id, this means we haven't been provided with the id of the thumbnail.  This will
-            // be the case for older data when we didn't store the thumbnailId alongside the id of the file itself.
-            // In this case, we will attempt to find the thumbnail by reference to the metadata
-            if (fileIds.length === 1) {
+            // For older data, the thumbnailId was not stored alongside the id of the file itself, and cannot
+            // therefore have been provided to us via the querystring.  In this case, we will attempt to find it by
+            // reference to the metadata.
+            let thumbnailId = req.query.thumbnailId as string;
+            if (!thumbnailId) {
               const collection = fng.mongoose.connection.collection(resource.model.collection.name + ".files");
               try {
-                const obj = await collection.findOne({ "metadata.original_id": fileIds[0] }, {});
+                const obj = await collection.findOne({ "metadata.original_id": fileId }, {});
                 if (obj) {
-                  fileIds.push(obj._id.toString());
+                  thumbnailId = obj._id.toString();
                 }
               } catch {
                 // ignore any errors
               }
             }
-            for (const fileId of fileIds) {
-              await gridFSBucket.delete(new mongo.ObjectId(fileId));
+            await gridFSBucket.delete(new mongo.ObjectId(fileId));
+            if (thumbnailId) {
+              await gridFSBucket.delete(new mongo.ObjectId(thumbnailId));
             }
           } else {
             if (!options.deletionDelegate) {
               throw new Error(`A deletionDelegate is required when the storage location is not MongoDB`);
             }
-            // for files that are NOT stored in MongoDB, we expect to be provided with the id for both the file
-            // and (if there is one) its thumbnail
-            for (const fileId of fileIds) {
-              options.deletionDelegate(req, fileId, location);
-            }
+            // for files that are NOT stored in MongoDB, the querystring should have the filename and - where appropriate -
+            // the thumbnail id.  we just pass this through to the delegate which should refer to req.query.fn and
+            // req.query.thumbnailId and delete the one or two files accordingly
+            options.deletionDelegate(req, fileId, location);
           }
           res.sendStatus(200);
         } catch (e) {

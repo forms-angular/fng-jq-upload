@@ -24,9 +24,10 @@
                                 </div>
                             </div>
                             <div data-ng-show="directiveOptions.single && !active()" class="pull-left file-delete-div">
-                                <button ng-show="mouseIn && !isDisabled" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy($event)">
+                                <button ng-show="mouseIn && !isDisabled" class="file-delete overlay-btn" aria-label="Delete" ng-mouseover="mouseIn=1" data-ng-click="queue[0].$destroy($event)" title="Delete File">
                                     <i class="glyphicon glyphicon-trash icon icon-trash"></i>
                                 </button>
+                                <span class="error text-danger single-delete-err" data-ng-show="queue[0].error">{{ queue[0].error }}</span>
                             </div>
                             <!-- The fileinput-button span is used to style the file input field as button -->
                             <span data-ng-hide="directiveOptions.single">
@@ -80,7 +81,7 @@
                                     </span>
                                     <span data-ng-switch-default>{{file.name}}</span>
                                 </p>
-                                <strong data-ng-show="file.error" class="error text-danger">{{file.error}}</strong>
+                                <span class="error text-danger" data-ng-show="file.error">{{ file.error }}</span>
                             </td>
                             <td>
                                 <p class="size">{{file.size | formatFileSize}}</p>

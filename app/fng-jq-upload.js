@@ -158,7 +158,7 @@
                 const msg = 'Unexpected response to getPresignedUrl (status' + response.status + ')';
                 throw new Error(msg);
               }
-            });            
+            });
           } else {
             return Promise.resolve(unsignedUrl);
           }
@@ -172,9 +172,7 @@
           });
           addTo.deleteUrl = url;
           if (thumbnailId) {
-            // if we have a thumbnailId, we append this such that the fileId param becomes a comma-separated list, which the back-end
-            // can iterate over, deleting each of the two files using identical logic
-            addTo.deleteUrl += ',' + thumbnailId;
+            addTo.deleteUrl += '&thumbnailId=' + thumbnailId;
           }
           addTo.deleteType = 'DELETE';
           addTo.thumbnailUrl = 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Iconoir_journal-page.svg'; // the default thumbnail location - might change it below
@@ -256,7 +254,7 @@
 
         $scope.$on('jqUpload:reinitialise', function () {
           // don't call setUpAttachments() directly from here - we call $scope.initialiseJqUpload so that
-          // directives other than fngJqUploadForm that use this controller can assign an alternative function to 
+          // directives other than fngJqUploadForm that use this controller can assign an alternative function to
           // $scope.initialiseJqUpload if they require additional logic to be executed when reinitialising
           $scope.initialiseJqUpload();
         });
@@ -265,7 +263,7 @@
           delete $scope.uploadError;
         });
 
-        // if the user clicks on the "Cancel" button at the top of the page while an upload is in progress, cancel it.
+        // if the user clicks on the 'Cancel' button at the top of the page while an upload is in progress, cancel it.
         // failing to do this will not only result in wasted storage, but if the user (without switching to another page /
         // record first) then uploads another file, the data field array will end up containing more than 1 element (when -
         // except when multi is true - it should only ever contain one)
@@ -276,7 +274,7 @@
           }
           if (typeof jqScope.active === 'function' && jqScope.active() && typeof jqScope.cancel === 'function') {
             jqScope.cancel();
-          }            
+          }
         });
 
         $scope.$on('fileuploadfail', function (event, data) {
@@ -296,7 +294,7 @@
           if (!error) {
             error = data.errorThrown || 'an unexpected error occurred';
           }
-          // "abort" is what we'll receive if the user clicks on our red Cancel button while the upload is in progress
+          // 'abort' is what we'll receive if the user clicks on our red Cancel button while the upload is in progress
           // (you'd probably need to introduce a fake server-side delay to reproduce that, otherwise the cancel button
           // isn't visible for long enough to click on)
           if (error !== 'abort') {
@@ -304,7 +302,7 @@
           }
           if (error.includes('ENOTFOUND')) {
             error = 'Failed to connect to storage service to upload file.  Have you gone offline?';
-          }         
+          }
         });
 
         $scope.$on('fileuploaddone', function (event, data) {
@@ -338,9 +336,14 @@
       function (PluginHelperService, $rootScope) {
         return {
           link: function (scope, element, attrs, ngModel) {
-            angular.extend(scope, PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm', scope.formScope, { setUpDynamicLabelFunc: true }));
+            angular.extend(
+              scope,
+              PluginHelperService.extractFromAttr(attrs, 'fngJqUploadForm', scope.formScope, {
+                setUpDynamicLabelFunc: true,
+              })
+            );
             // If the field's label includes @@ @@ tags (to denote pseudonyms), the setUpDynamicLabelFunc option that we have just passed
-            // to extractFromAttr() will have caused a label() function to have been set up on the passed scope.  This will be called from 
+            // to extractFromAttr() will have caused a label() function to have been set up on the passed scope.  This will be called from
             // our template, but to be accessible from there, needs to be migrated to scope.
             // This dynamic label function is only required because our template uses {{ }} notation for our field's label, so the {{ }}
             // notation that fng's PluginHelperService will use by default to deal with dynamic pseudonym replacements won't work here.
@@ -400,21 +403,32 @@
           };
           file.$destroy = function ($event) {
             if (!$event || !$event.target.className.includes('ng-hide')) {
-              $scope.$parent.$parent.mouseIn = false;
+              const scope = $scope.$parent.$parent;
+              scope.mouseIn = 0;
               state = 'pending';
-              return $http({
-                url: file.deleteUrl,
-                method: file.deleteType,
-              }).then(
-                function () {
+              return $http({ url: file.deleteUrl, method: file.deleteType })
+                .then(() => {
                   state = 'resolved';
                   removeFromRecord(file);
-                },
-                function () {
+                })
+                .catch((res) => {
                   state = 'rejected';
-                  removeFromRecord(file);
-                }
-              );
+                  const err = res.data || res;
+                  const errMsg = typeof err === 'string' ? err : err.message || JSON.stringify(err);
+                  if (res.status === 403) {
+                    // if they don't have permission to delete the file, we should leave it where it is, and display
+                    // the error message alongside
+                    file.error = errMsg;
+                  } else {
+                    // for any other type of error, we will assume the file no longer exists in storage.  in this case, the
+                    // pointer to it in the mongo document is no longer relevant, and should be removed.  this provides users
+                    // with a way to tidy-up orphaned records.  if we've removed the queue item, the place where the error
+                    // message would most obviously go will no longer exist, so we'll use the uploadError scope variable
+                    // to show it outside of the ng-repeat
+                    removeFromRecord(file);
+                    scope.$parent.uploadError = errMsg;
+                  }
+                });
             }
           };
         } else if (!file.$cancel && !file._index) {

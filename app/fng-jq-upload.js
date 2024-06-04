@@ -208,6 +208,9 @@
         }
 
         function setUpAttachments() {
+          if (!$scope.$$childHead) {
+            return;
+          }
           $scope.$$childHead.queue = [];
           const storedData = $scope.dataField();
           if (!storedData) {

@@ -286,7 +286,7 @@
             let response;
             try {
               response = JSON.parse(xhr.responseText);
-              error = response.error || response;
+              error = response.error || response.message || response;
             } catch (e) {
               error = xhr.responseText;
             }

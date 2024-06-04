@@ -208,6 +208,9 @@
         }
 
         function setUpAttachments() {
+          if (!$scope.$$childHead) {
+            return;
+          }
           $scope.$$childHead.queue = [];
           const storedData = $scope.dataField();
           if (!storedData) {
@@ -286,7 +289,7 @@
             let response;
             try {
               response = JSON.parse(xhr.responseText);
-              error = response.error || response;
+              error = response.error || response.message || response;
             } catch (e) {
               error = xhr.responseText;
             }

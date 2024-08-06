@@ -312,20 +312,21 @@
           const field = $scope.dataField(true);
           // $scope.dataField(true) should always return something, but have seen a case in Sentry where it did not.
           // surely a very rare case where they cancelled / redirected etc. at a very inopportune moment
-          if (field) {
-            const fileDetails = data.result.files[0];
-            const _id = fileDetails.id;
-            const filename = fileDetails.name;
-            const location = fileDetails.location;
-            const thumbnailId = fileDetails.thumbnailId;
-            field.push({
-              _id,
-              filename,
-              size: fileDetails.size,
-              location,
-              thumbnailId,
-            });
+          if (!field) {
+            return;
           }
+          const fileDetails = data.result.files[0];
+          const _id = fileDetails.id;
+          const filename = fileDetails.name;
+          const location = fileDetails.location;
+          const thumbnailId = fileDetails.thumbnailId;
+          field.push({
+            _id,
+            filename,
+            size: fileDetails.size,
+            location,
+            thumbnailId,
+          });
           // at the point of fileuploaddone being fired, the last item in $scope.$$childHead.queue will have already been
           // populated with the details of the file provided by the server.  we just need to decorate this now with the
           // urls for downloading, deleting and retrieving a thumbnail for this item as setUpAttachments() isn't
@@ -337,7 +338,7 @@
             assignQueueToFormScope();
           }
         });
-      },
+      }
     ])
     .directive('fngJqUploadForm', [
       'PluginHelperService',

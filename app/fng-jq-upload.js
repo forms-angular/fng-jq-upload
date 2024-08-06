@@ -310,6 +310,11 @@
 
         $scope.$on('fileuploaddone', function (event, data) {
           const field = $scope.dataField(true);
+          // $scope.dataField(true) should always return something, but have seen a case in Sentry where it did not.
+          // surely a very rare case where they cancelled / redirected etc. at a very inopportune moment
+          if (!field) {
+            return;
+          }
           const fileDetails = data.result.files[0];
           const _id = fileDetails.id;
           const filename = fileDetails.name;
@@ -327,9 +332,11 @@
           // urls for downloading, deleting and retrieving a thumbnail for this item as setUpAttachments() isn't
           // called again here
           const queue = $scope.$$childHead.queue;
-          addAttachmentUrls(queue[queue.length - 1], location, _id, filename, thumbnailId);
-          $scope.ngModel.$setDirty();
-          assignQueueToFormScope();
+          if (queue) {
+            addAttachmentUrls(queue[queue.length - 1], location, _id, filename, thumbnailId);
+            $scope.ngModel.$setDirty();
+            assignQueueToFormScope();
+          }
         });
       },
     ])

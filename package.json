@@ -1,6 +1,6 @@
 {
   "name": "fng-jq-upload",
-  "version": "0.12.0-beta.316",
+  "version": "0.12.0-beta.317",
   "author": {
     "name": "Mark Chapman",
     "email": "support@forms-angular.org"
@@ -30,7 +30,7 @@
     "async":"^3.2.5",
     "body-parser":"^1.20.2",
     "express":"^4.19.2",
-    "forms-angular": "0.12.0-beta.316",
+    "forms-angular": "0.12.0-beta.317",
     "grunt": "^1.6.1",
     "grunt-angular-templates": "^1.2.0",
     "grunt-contrib-concat":"^2.1.0",

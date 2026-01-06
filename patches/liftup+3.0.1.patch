@@ -1,0 +1,13 @@
+diff --git a/node_modules/liftup/lib/find_config.js b/node_modules/liftup/lib/find_config.js
+index c55a677..60402e7 100644
+--- a/node_modules/liftup/lib/find_config.js
++++ b/node_modules/liftup/lib/find_config.js
+@@ -18,7 +18,7 @@ module.exports = function(opts) {
+     configPath = fileSearch(configNameSearch, searchPaths);
+   }
+   // confirm the configPath exists and return an absolute path to it
+-  if (fs.existsSync(configPath)) {
++  if (configPath && typeof configPath === 'string' && fs.existsSync(configPath)) {
+     return path.resolve(configPath);
+   }
+   return null;

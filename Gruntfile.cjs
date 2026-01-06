@@ -55,7 +55,7 @@ module.exports = function (grunt) {
         reporter: 'dot',
         'forbid-only': true,
       },
-      all : {
+      all: {
         src: [
           'test/api/**/*.js'
         ]
@@ -64,7 +64,7 @@ module.exports = function (grunt) {
 
     karma: {
       unit: {
-        configFile: 'test/karma.conf.js',
+        configFile: 'test/karma.conf.cjs',
         singleRun: true
       }
     },

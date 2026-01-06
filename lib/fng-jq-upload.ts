@@ -1,13 +1,13 @@
 // TODO set busboy filesize limit
-import express = require("express");
-import mongoose = require("mongoose");
-import mongodb = require("mongodb");
-import path = require("path");
-import busboy = require("busboy");
-import * as ims from "imagemagick-stream";
+import express from "express";
+import mongoose from "mongoose";
+import * as mongodb from "mongodb";
+import path from "path";
+import busboy from "busboy";
+import ims from "imagemagick-stream";
 import * as stream from "stream";
 
-import { fngServer } from "forms-angular/dist/server";
+import type { fngServer } from "forms-angular/dist/server/index.js";
 import { BusboyConfig } from "busboy";
 
 // the numeric values are written to the document property that stores the reference to the file (which
@@ -437,3 +437,5 @@ export function controller(
   // but in our case, we have nothing, so we can simply...
   return retVal;
 }
+
+export default { controller, FileSchema };

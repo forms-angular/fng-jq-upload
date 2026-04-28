@@ -127,6 +127,7 @@
                 var arrayIndex =
                   $scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno];
                 if (arrayIndex != null && arrayIndex !== undefined && arrayIndex !== -1) {
+                  retVal[arrayIndex][lastPart] = retVal[arrayIndex][lastPart] || [];
                   retVal = retVal[arrayIndex][lastPart];
                 } else {
                   retVal = undefined;

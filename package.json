@@ -16,7 +16,7 @@
     "busboy": "^1.6.0",
     "imagemagick-stream": "^4.1.1",
     "jquery": "^3.7.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.18.1"
   },
   "devDependencies": {
     "@types/busboy": "^1.5.4",

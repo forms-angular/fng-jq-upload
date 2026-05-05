@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: 24.x
 
+      - name: Install ImageMagick
+        run: sudo apt-get install -y imagemagick
+
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v2
         with:

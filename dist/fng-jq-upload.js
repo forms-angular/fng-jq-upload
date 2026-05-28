@@ -13,6 +13,11 @@
     return breakdown[2];
   };
 
+  // Module-scope accumulator so every fng-jq-upload directive on the same page contributes to a single
+  // batched presign request, regardless of where the directive is mounted in the scope tree.
+  // Keyed by modelName; flushed on the next tick via $timeout(0).
+  var presignBuckets = {};
+
   app
     .controller('FngUploadAdditFieldsCtrl', [
       '$scope',
@@ -76,7 +81,8 @@
     .controller('FngJqUploadCtrl', [
       '$scope',
       '$http',
-      function ($scope, $http) {
+      '$timeout',
+      function ($scope, $http, $timeout) {
         $scope.loadingFiles = false;
         $scope.formScope = $scope.$parent;
 
@@ -127,6 +133,7 @@
                 var arrayIndex =
                   $scope.formScope['$_arrayOffset_' + root.replace(/\./g, '_') + '_' + $scope.options.subkeyno];
                 if (arrayIndex != null && arrayIndex !== undefined && arrayIndex !== -1) {
+                  retVal[arrayIndex][lastPart] = retVal[arrayIndex][lastPart] || [];
                   retVal = retVal[arrayIndex][lastPart];
                 } else {
                   retVal = undefined;
@@ -207,6 +214,78 @@
           $scope.formScope.fngJqUploadFileQueue = $scope.$$childHead.queue;
         }
 
+        function isImageFilename(filename) {
+          if (!filename) {
+            return false;
+          }
+          const lc = filename.toLowerCase();
+          for (const ext of ['.gif', '.png', '.jpg', '.jpeg']) {
+            if (lc.endsWith(ext)) {
+              return true;
+            }
+          }
+          return false;
+        }
+
+        // Collect the queue entries that need a pre-signed URL, defer briefly so that sibling
+        // fng-jq-upload directives on the same form get to register their attachments too, then ask
+        // the server for them all in one round-trip per location.  Each form has many file fields
+        // (referral file, photo, ID document, ...) and typically each holds 1 file, so without this
+        // batching the page-load cost is dominated by N small requests.  $timeout(0) coalesces every
+        // register-call made during the current digest into a single $http.post per model+location.
+        function batchPresignAttachments(pending) {
+          const modelName = $scope.formScope.modelName;
+          if (!presignBuckets[modelName]) {
+            presignBuckets[modelName] = { items: [], flushScheduled: false };
+          }
+          const bucket = presignBuckets[modelName];
+          for (const item of pending) {
+            bucket.items.push(item);
+          }
+          if (bucket.flushScheduled) {
+            return;
+          }
+          bucket.flushScheduled = true;
+          $timeout(function () {
+            const items = bucket.items;
+            bucket.items = [];
+            bucket.flushScheduled = false;
+            const byLocation = new Map();
+            for (const item of items) {
+              const group = byLocation.get(item.location) || [];
+              group.push(item);
+              byLocation.set(item.location, group);
+            }
+            byLocation.forEach((groupItems, location) => {
+              const body = {
+                files: groupItems.map((item) => ({
+                  id: item.id,
+                  location,
+                  fn: item.filename,
+                  thumbnailId: item.thumbnailId,
+                })),
+              };
+              $http.post('/api/file/presign/' + modelName, body).then((response) => {
+                const results = (response.data && response.data.files) || [];
+                const byId = {};
+                for (const r of results) {
+                  byId[r.id] = r;
+                }
+                for (const item of groupItems) {
+                  const result = byId[item.id];
+                  if (!result) {
+                    continue;
+                  }
+                  item.queueElement.url = result.url;
+                  if (result.thumbnailUrl) {
+                    item.queueElement.thumbnailUrl = result.thumbnailUrl;
+                  }
+                }
+              });
+            });
+          }, 0);
+        }
+
         function setUpAttachments() {
           if (!$scope.$$childHead) {
             return;
@@ -216,23 +295,49 @@
           if (!storedData) {
             return;
           }
+          const modelName = $scope.formScope.modelName;
+          const pendingPresign = [];
           for (const storedElement of storedData) {
             // location did not exist in the original schema.  where no value has been saved, the file is assumed to have been
             // saved to MongoDB - which is represeted by a value of 1
             const location = storedElement.location === undefined ? 1 : storedElement.location;
             const storedName = storedElement.filename;
+            const id = storedElement._id;
+            const thumbnailId = storedElement.thumbnailId;
+            const modelAndLocation = modelName + '/' + location;
+            const baseUrl = '/api/file/' + modelAndLocation + '/' + id + '?fn=' + storedName;
+            let deleteUrl = baseUrl;
+            if (thumbnailId) {
+              deleteUrl += '&thumbnailId=' + thumbnailId;
+            }
             const queueElement = {
               name: storedName,
               size: storedElement.size,
               location,
+              deleteUrl,
+              deleteType: 'DELETE',
+              thumbnailUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Iconoir_journal-page.svg',
             };
-            // add the necessary urls for downloading, deleting and retrieving a thumbail for this item.
-            // when a new item is added, addAttachmentUrls() will be called from the fileuploaddone listener
-            addAttachmentUrls(queueElement, location, storedElement._id, storedName, storedElement.thumbnailId);
+            if (location > 1) {
+              // remote storage - defer URL generation to the batched presign call below
+              pendingPresign.push({ queueElement, location, id, filename: storedName, thumbnailId });
+            } else {
+              // file is stored in MongoDB - the URL is just the route, no presigning required
+              queueElement.url = baseUrl;
+              if (!$scope.options.defaultThumbnail && isImageFilename(storedName)) {
+                // for MongoDB-stored images we have a dedicated route that streams the thumbnail
+                queueElement.thumbnailUrl = thumbnailId
+                  ? '/api/file/' + modelAndLocation + '/' + thumbnailId
+                  : '/api/file/' + modelAndLocation + '/thumbnail/' + id;
+              }
+            }
             if (!$scope.$$childHead.queue) {
               $scope.$$childHead.queue = []; // shouldn't happen, but have seen in Sentry
             }
             $scope.$$childHead.queue.push(queueElement);
+          }
+          if (pendingPresign.length > 0) {
+            batchPresignAttachments(pendingPresign);
           }
           assignQueueToFormScope();
         }

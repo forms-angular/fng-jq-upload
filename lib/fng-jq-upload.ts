@@ -43,6 +43,25 @@ export type StorageDelegate = (
 
 export type RetrievalDelegate = (req: express.Request, fileId: string, location: number, res: express.Response) => void;
 
+export interface IPresignBatchRequestItem {
+  id: string;
+  location: number;
+  fn?: string;
+  thumbnailId?: string;
+}
+
+export interface IPresignBatchResponseItem {
+  id: string;
+  url: string;
+  thumbnailUrl?: string;
+}
+
+export type PresignBatchDelegate = (
+  req: express.Request,
+  modelName: string,
+  files: IPresignBatchRequestItem[]
+) => Promise<IPresignBatchResponseItem[]>;
+
 export type DeletionDelegate = (req: express.Request, fileId: string, location: number) => void;
 
 export interface JqUploadOptions {
@@ -51,6 +70,7 @@ export interface JqUploadOptions {
   storageDelegate?: StorageDelegate;
   storageLimitsDelegate?: StorageLimitsDelegate;
   retrievalDelegate?: RetrievalDelegate;
+  presignBatchDelegate?: PresignBatchDelegate;
   deletionDelegate: DeletionDelegate;
 }
 
@@ -337,6 +357,33 @@ export function controller(
           readstream.pipe(res);
         } catch (e) {
           res.status(400).send(e.message);
+        }
+      },
+    ])
+  );
+
+  // batch route for retrieving signed URLs for many previously-uploaded files in a single request.
+  // the body is { files: [{ id, location, fn?, thumbnailId? }, ...] } and the response is
+  // { files: [{ id, url, thumbnailUrl? }, ...] }.  this exists so that the page loading a record with
+  // lots of attachments doesn't have to make a separate round-trip per file.
+  fng.app.post.apply(
+    fng.app,
+    processArgs(modifiedFngOpts, [
+      "file/presign/:model",
+      async function (req: express.Request, res: express.Response) {
+        try {
+          if (!options.presignBatchDelegate) {
+            throw new Error("A presignBatchDelegate is required to use the batch presign route");
+          }
+          const items: IPresignBatchRequestItem[] = req.body?.files;
+          if (!Array.isArray(items)) {
+            res.status(400).send({ error: "Request body must include a 'files' array" });
+            return;
+          }
+          const result = await options.presignBatchDelegate(req, req.params.model, items);
+          res.send({ files: result });
+        } catch (e) {
+          res.status(500).send({ error: e.message || "An unexpected error occurred" });
         }
       },
     ])

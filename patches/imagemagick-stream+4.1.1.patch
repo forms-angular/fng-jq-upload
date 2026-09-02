@@ -1,0 +1,15 @@
+diff --git a/node_modules/imagemagick-stream/index.js b/node_modules/imagemagick-stream/index.js
+index 9e036c4..d809df9 100644
+--- a/node_modules/imagemagick-stream/index.js
++++ b/node_modules/imagemagick-stream/index.js
+@@ -1,7 +1,9 @@
+ "use strict";
+ 
+ const spawn = require('child_process').spawn;
+-const isError = require('util').isError;
++// util.isError was removed from Node.js core (present in Node <= ~22, gone by Node 24) - reimplement
++// locally rather than relying on it, since the upstream package has been unmaintained since 2018.
++const isError = (val) => Object.prototype.toString.call(val) === '[object Error]';
+ const Duplexify = require('duplexify');
+ const fs = require('fs');
+ 

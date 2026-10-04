@@ -97,4 +97,24 @@ describe('API', function () {
 
 });
 
+describe('createThumbnailStreamIfNeeded', function () {
+
+    it('should emit an error (not throw) when ImageMagick rejects the input', function (done) {
+        // imagemagick-stream's own onerror uses util.isError, which no longer exists in Node 24
+        const thumbnailStream = jqUploads.createThumbnailStreamIfNeeded({ required: true, height: 50 }, 'bad.png');
+        let finished = false;
+        thumbnailStream.on('error', function (err) {
+            if (finished) {
+                return;
+            }
+            finished = true;
+            assert.ok(err instanceof Error);
+            done();
+        });
+        thumbnailStream.resume();
+        thumbnailStream.end(Buffer.from('this is not a png'));
+    });
+
+});
+
 

@@ -172,7 +172,15 @@ export function createThumbnailStreamIfNeeded(opts: ISchemaThumbnailOpts, filena
   // you never know...
   size += ">";
   // unsharp can improve the image quality after the resize.  See https://legacy.imagemagick.org/Usage/thumbnails/#height.
-  return ims().thumbnail(size).autoOrient().op("unsharp", "0x.5").inputFormat(type).outputFormat(type);
+  const thumbnailStream = ims().thumbnail(size).autoOrient().op("unsharp", "0x.5").inputFormat(type).outputFormat(type);
+  // imagemagick-stream's own onerror calls util.isError, which was removed in Node 24, so any ImageMagick error output
+  // would throw a TypeError instead of being emitted.  Our patches/ fix only applies when developing this package (not
+  // in consumers), so replace onerror on the instance - imagemagick-stream reads this.onerror when it wires up the
+  // child process.  An arrow function also keeps the right `this` where imagemagick-stream passes onerror unbound.
+  thumbnailStream.onerror = (err: unknown) => {
+    thumbnailStream.emit("error", err instanceof Error ? err : new Error(String(err)));
+  };
+  return thumbnailStream;
 }
 
 function storeInMongoDB(

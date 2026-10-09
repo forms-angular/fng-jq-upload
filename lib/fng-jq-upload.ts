@@ -143,7 +143,7 @@ function storeOneFileInMongoDB(
     stream.abort();
     callback(new TooLargeError());
   });
-  file.pipe(stream);
+  file.pipe(stream as any); // GridFS upload stream typings disagree with busboy's stream across @types/node versions
 }
 
 export function createThumbnailStreamIfNeeded(opts: ISchemaThumbnailOpts, filename: string): any {

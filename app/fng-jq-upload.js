@@ -9,8 +9,8 @@
   var app = angular.module('uploadModule', ['blueimp.fileupload']);
 
   var getIdFromUrl = function (url) {
-    var breakdown = /\/file\/(.+?)\/([0-9a-f]{24})/.exec(url);
-    return breakdown[2];
+    var breakdown = /\/file\/(.+?)\/([0-9a-f]{24})/.exec(url || '');
+    return breakdown ? breakdown[2] : undefined;
   };
 
   // Module-scope accumulator so every fng-jq-upload directive on the same page contributes to a single
@@ -494,15 +494,18 @@
         $scope.uploadScope = $scope.$parent.$parent.$parent;
 
         var removeFromRecord = function (file) {
+          // a file that is cancelled before (or after failing) its upload has no deleteUrl, and nothing in the record
           var id = getIdFromUrl(file.deleteUrl);
-          var array = $scope.uploadScope.dataField();
-          for (var i = array.length - 1; i >= 0; i--) {
-            if (array[i]._id === id) {
-              array.splice(i, 1);
+          if (id) {
+            var array = $scope.uploadScope.dataField();
+            for (var i = array.length - 1; i >= 0; i--) {
+              if (array[i]._id === id) {
+                array.splice(i, 1);
+              }
             }
+            $scope.ngModel.$setDirty();
           }
           $scope.clear(file);
-          $scope.ngModel.$setDirty();
         };
 
         if (file.deleteUrl) {

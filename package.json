@@ -8,6 +8,7 @@
   },
   "description": "jQuery file upload plugin for forms-angular, storing data in Mongo.  Pretty much a wrapper for BlueImp jquery-file-upload",
   "scripts": {
+    "build": "grunt",
     "test": "grunt test",
     "prepare": "patch-package"
   },

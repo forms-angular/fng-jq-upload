@@ -29,8 +29,16 @@
           'record',
           function (newVal, oldVal) {
             if (newVal !== oldVal) {
-              $scope.uploadForm.formScope[$scope.uploadForm.formScope.topLevelFormName].$setDirty();
-              angular.extend($scope.uploadForm.dataField()[$scope.file], newVal);
+              // setUpAdditFields() copying the stored values in is not a change (and when the directive is linked after
+              // the record has loaded - in a lazily rendered tab, say - it happens after the form was set pristine)
+              var stored = $scope.uploadForm.dataField()[$scope.file];
+              var changed = !stored || Object.keys(newVal).some(function (key) {
+                return !angular.equals(newVal[key], stored[key]);
+              });
+              if (changed) {
+                $scope.uploadForm.formScope[$scope.uploadForm.formScope.topLevelFormName].$setDirty();
+                angular.extend(stored, newVal);
+              }
             }
           },
           true

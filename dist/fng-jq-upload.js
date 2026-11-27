@@ -473,6 +473,10 @@
             scope.directiveOptions.url =
               '/api/file/upload/' + scope.formScope.modelName + '/' + encodeURIComponent(scope.info.name);
             scope.directiveOptions.autoUpload = scope.directiveOptions.autoupload;
+            // blueimp's default drop zone is the whole document, so when a form has several of these fields (one
+            // per row of an array, say) a file dropped anywhere on the page would be uploaded by every one of them,
+            // and each would save its own copy.  Only take files dropped on this field.
+            scope.directiveOptions.dropZone = element;
             if (scope.passedParams.readonly) {
               scope.isDisabled = true;
             } else {

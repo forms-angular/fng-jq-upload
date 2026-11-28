@@ -1,12 +1,43 @@
-// TODO Check the filesize https://stackoverflow.com/questions/3717793/javascript-file-upload-size-validation
-//  and suggest they resize if using an appropriate tool https://www.google.com/search?q=compress+photo+online+to+200kb
-//  for example https://www.img2go.com/compress-image or https://www.imgonline.com.ua/eng/compress-image-size.php
-//  or https://sqooush.app
-
 (function () {
   'use strict';
 
   var app = angular.module('uploadModule', ['blueimp.fileupload']);
+
+  // blueimp options for shrinking photos in the browser before they are uploaded (they are off by default).
+  // - JPEG and PNG only: an animated GIF would lose its animation, and not every browser can save WebP / HEIC.
+  // - photos up to 50MB are opened to be shrunk (blueimp's default is 10MB, above which it sends the original as it is).
+  // - 2048px on the longest side is still sharp on any screen, and makes a typical phone photo well under 1MB.
+  // - no orientation: browsers now turn the photo the right way up as they open it, and the old blueimp-load-image we
+  //   use doesn't know that, so it would turn it again.  For the same reason the original's metadata (which includes
+  //   its orientation, and where it was taken) is not copied to the shrunk photo.
+  var IMAGE_RESIZE_OPTIONS = {
+    disableImageResize: false,
+    loadImageFileTypes: /^image\/(jpeg|png)$/,
+    loadImageMaxFileSize: 50 * 1024 * 1024,
+    imageMaxWidth: 2048,
+    imageMaxHeight: 2048,
+    imageQuality: 0.85,
+    imageOrientation: false,
+    disableImageMetaDataSave: true,
+  };
+
+  // the same wording as the server's message
+  var tooLargeMessage = function (maxFileSize) {
+    var units = 'byte';
+    var value = maxFileSize;
+    if (value % 1024 === 0) {
+      value = value / 1024;
+      units = 'kilobyte';
+      if (value % 1024 === 0) {
+        value = value / 1024;
+        units = 'megabyte';
+      }
+    }
+    if (value > 1) {
+      units += 's';
+    }
+    return 'The file is too large.  The maximum permitted size is ' + value + ' ' + units + '.';
+  };
 
   var getIdFromUrl = function (url) {
     var breakdown = /\/file\/(.+?)\/([0-9a-f]{24})/.exec(url || '');
@@ -375,7 +406,62 @@
           $scope.initialiseJqUpload();
         });
 
-        $scope.$on('fileuploadstart', function () {
+        // Shrink photos in the browser before uploading them, and refuse anything that is still over the server's limit
+        // straight away (rather than uploading it only for the server to reject it).  The directives using this
+        // controller set directiveOptions.url in their link functions, which run after this, so wait for it.
+        // A field can opt out of the resizing with fngJqUploadForm: { noImageResize: true }.
+        var limitsWatchDeregister = $scope.$watch('directiveOptions.url', function (url) {
+          if (!url) {
+            return;
+          }
+          limitsWatchDeregister();
+          if (!($scope.options && $scope.options.noImageResize)) {
+            // blueimp only notices a change of options when directiveOptions is replaced
+            $scope.directiveOptions = angular.extend({}, $scope.directiveOptions, IMAGE_RESIZE_OPTIONS);
+          }
+          var limitsUrl = url.replace('/file/upload/', '/file/limits/');
+          if (limitsUrl === url) {
+            return;
+          }
+          $http.get(limitsUrl).then(
+            function (response) {
+              var maxFileSize = response.data && response.data.maxFileSize;
+              if (maxFileSize > 0) {
+                // blueimp only notices a change of options when directiveOptions is replaced
+                $scope.directiveOptions = angular.extend({}, $scope.directiveOptions, {
+                  maxFileSize: maxFileSize,
+                  messages: angular.extend({}, $scope.directiveOptions.messages, {
+                    maxFileSize: tooLargeMessage(maxFileSize),
+                  }),
+                });
+              }
+            },
+            function () {
+              // the server will still enforce its limit
+            }
+          );
+        });
+
+        // a file refused before uploading (see above) - show why, and clear it so another can be chosen
+        $scope.$on('fileuploadprocessfail', function (event, data) {
+          var file = data.files && data.files[data.index || 0];
+          if (file && file.error) {
+            $scope.uploadError = file.error;
+            // blueimp is about to swap the queue's copy of the file for the processed one, so wait for that
+            $timeout(function () {
+              var jqScope = $scope.$$childHead;
+              if (jqScope && jqScope.queue) {
+                jqScope.queue = jqScope.queue.filter(function (f) {
+                  return !f.error;
+                });
+              }
+            });
+          }
+        });
+
+        // clear any earlier error as soon as files are chosen ('fileuploadstart' would be too late, as it comes after
+        // one of several files chosen together has been refused - see 'fileuploadprocessfail' above)
+        $scope.$on('fileuploadadd', function () {
           delete $scope.uploadError;
         });
 

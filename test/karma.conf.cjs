@@ -16,6 +16,7 @@ module.exports = function (config) {
       'node_modules/angular/angular-messages.js',
       'node_modules/ng-infinite-scroll/build/ng-infinite-scroll.js',
       'node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
+      'node_modules/blueimp-load-image/js/load-image.all.min.js',
       'node_modules/blueimp-file-upload/js/cors/jquery.postmessage-transport.js',
       'node_modules/blueimp-file-upload/js/cors/jquery.xdr-transport.js',
       'node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js',

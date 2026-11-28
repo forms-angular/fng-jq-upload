@@ -370,6 +370,30 @@ export function controller(
     ])
   );
 
+  // the limits that the upload route will apply to a field, so that the browser can shrink a photo to fit before
+  // uploading it, and refuse anything else that is too large straight away instead of uploading it only for it to be
+  // rejected.  the query string should be the same as the upload's, as the storageLimitsDelegate can look at it
+  fng.app.get.apply(
+    fng.app,
+    processArgs(modifiedFngOpts, [
+      "file/limits/:model/:fieldName",
+      async function (req: express.Request, res: express.Response) {
+        try {
+          const resource = fng.getResource(req.params.model);
+          if (!resource) {
+            res.status(404).send({ error: "No such resource" });
+            return;
+          }
+          const limits: IStorageLimits =
+            (await options.storageLimitsDelegate?.(req, req.params.fieldName, resource)) || {};
+          res.send({ maxFileSize: limits.maxFileSize });
+        } catch (e) {
+          res.status(500).send({ error: e.message || "An unexpected error occurred" });
+        }
+      },
+    ])
+  );
+
   // batch route for retrieving signed URLs for many previously-uploaded files in a single request.
   // the body is { files: [{ id, location, fn?, thumbnailId? }, ...] } and the response is
   // { files: [{ id, url, thumbnailUrl? }, ...] }.  this exists so that the page loading a record with

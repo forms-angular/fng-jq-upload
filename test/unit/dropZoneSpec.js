@@ -27,7 +27,8 @@ describe('Drop zone', function () {
     };
   }
 
-  beforeEach(inject(function ($rootScope, $compile) {
+  beforeEach(inject(function ($rootScope, $compile, $httpBackend) {
+    $httpBackend.whenGET(/\/api\/file\/limits\//).respond({});
     elm = angular.element('<div><form-input formStyle="horizontalCompact" schema="formSchema"></form-input></div>');
     angular.element(document.body).append(elm);
     scope = $rootScope;

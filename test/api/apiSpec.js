@@ -118,3 +118,40 @@ describe('createThumbnailStreamIfNeeded', function () {
 });
 
 
+
+// the browser asks for a field's upload limit so it can shrink photos to fit, and refuse anything else too large,
+// before uploading
+describe('limits', function () {
+    function appWith(options) {
+        const app = express();
+        const fakeFng = {
+            app,
+            options: {},
+            getResource: (name) => (name === 'Applicant' ? { resourceName: name } : undefined),
+        };
+        jqUploads.controller(fakeFng, (opts, args) => ['/api/' + args[0], ...args.slice(1)], options);
+        return app;
+    }
+
+    it('gives the maximum from the storageLimitsDelegate, passing it the request', async function () {
+        let seen;
+        const app = appWith({
+            storageLimitsDelegate: async (req, fieldName, resource) => {
+                seen = { fieldName, resourceName: resource.resourceName, forNote: req.query.forNote };
+                return { maxFileSize: 3 * 1024 * 1024 };
+            },
+        });
+        const res = await request(app).get('/api/file/limits/Applicant/photoField?forNote=1').expect(200);
+        assert.deepStrictEqual(res.body, { maxFileSize: 3 * 1024 * 1024 });
+        assert.deepStrictEqual(seen, { fieldName: 'photoField', resourceName: 'Applicant', forNote: '1' });
+    });
+
+    it('gives no maximum when there is no storageLimitsDelegate', async function () {
+        const res = await request(appWith({})).get('/api/file/limits/Applicant/photoField').expect(200);
+        assert.deepStrictEqual(res.body, {});
+    });
+
+    it('is a 404 for an unknown model', async function () {
+        await request(appWith({})).get('/api/file/limits/Nothing/photoField').expect(404);
+    });
+});

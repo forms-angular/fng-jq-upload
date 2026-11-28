@@ -13,7 +13,8 @@ describe('Photo', function () {
 
   describe('Input', function () {
 
-    beforeEach(inject(function ($rootScope, $compile) {
+    beforeEach(inject(function ($rootScope, $compile, $httpBackend) {
+      $httpBackend.whenGET(/\/api\/file\/limits\//).respond({});
       elm = angular.element('<div><form-input formStyle="horizontalCompact" schema="formSchema"></form-input></div>');
       scope = $rootScope;
       scope.formSchema = {
